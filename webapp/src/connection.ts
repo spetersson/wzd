@@ -10,7 +10,7 @@ export default class WZDConnection {
                 return;
             }
 
-            this.conn = new WebSocket(`ws://${path}`);
+            this.conn = new WebSocket(`ws://${path}/ws`);
             this.conn.onerror = () => {
                 this.conn = null;
                 reject(new Error("Failed to connect"));

@@ -26,17 +26,28 @@
                 justify-content: center;
             }
 
+            #host-field {
+                margin-bottom: 0.2rem;
+            }
             #name-field {
                 margin-bottom: 0.5rem;
             }
 
             #game-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
         </style>
     </head>
     <body>
         <div id="join-container">
             <form id="join-form">
+                <input
+                    id="host-field"
+                    type="text"
+                    placeholder="Enter the server address"
+                />
                 <input
                     id="name-field"
                     type="text"
@@ -46,7 +57,7 @@
             </form>
         </div>
         <div id="game-container" style="display: none">
-            <canvas></canvas>
+            <canvas id="canvas"></canvas>
         </div>
     </body>
 </html>
