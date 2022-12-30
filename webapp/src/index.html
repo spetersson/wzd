@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WZD</title>
+        <style>
+            html,
+            body,
+            #join-container,
+            #game-container {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #join-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #join-container > form {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            #name-field {
+                margin-bottom: 0.5rem;
+            }
+
+            #game-container {
+            }
+        </style>
+    </head>
+    <body>
+        <div id="join-container">
+            <form id="join-form">
+                <input
+                    id="name-field"
+                    type="text"
+                    placeholder="Enter your nick"
+                />
+                <input class="submit" type="submit" value="Join" />
+            </form>
+        </div>
+        <div id="game-container" style="display: none">
+            <canvas></canvas>
+        </div>
+    </body>
+</html>
