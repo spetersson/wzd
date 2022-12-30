@@ -5,7 +5,9 @@
 World zombie defence introduction readme
 * Components
 ** Frontend
+`file:./doc/frontend.org`
 ** Backend
+`file:./doc/backend.org`
 ** Graphic assets
 * How to build
 - More to come
