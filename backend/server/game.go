@@ -16,7 +16,9 @@ func NewGame() *Game {
 }
 
 type Player struct {
-	Nick string
+	Nick string  `json:"nick"`
+	X    float64 `json:"x"`
+	Y    float64 `json:"y"`
 }
 
 type Message struct {
@@ -24,19 +26,16 @@ type Message struct {
 	message string
 }
 
-// var leaving = make(chan message)
-// var messages = make(chan Message)
-
 func (g *Game) Run() {
 	for {
 		select {
 		case msg := <-g.message:
-			ParseMessage(msg.Client, msg.message)
+			ParseMessage(g, msg.Client, msg.message)
 		}
 	}
 }
 
-func ParseMessage(client Client, message string) {
+func ParseMessage(game *Game, client Client, message string) {
 
 	log.Println("Incoming message: " + message)
 
@@ -46,11 +45,26 @@ func ParseMessage(client Client, message string) {
 	switch t := data["type"]; t {
 
 	case "join":
-		// client.Nick = data["nick"].(string)
+		game.players[client] = Player{data["nick"].(string), 0, 0}
 		log.Println("Player " + data["nick"].(string) + " has joined the game.")
 
 	case "move":
-		log.Println("Move command")
+		if _, exists := game.players[client]; !exists {
+			break
+		}
+
+		player := game.players[client]
+		player.X = data["x"].(float64)
+		player.Y = data["y"].(float64)
+
+		log.Printf("Player %s moved to (%f, %f)", player.Nick, player.X, player.Y)
+
+		message, _ := json.Marshal(struct {
+			Type string `json:"type"`
+			Player
+		}{"move", player})
+
+		client.hub.broadcast <- message
 	}
 
 }

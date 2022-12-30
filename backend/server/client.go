@@ -5,7 +5,6 @@ package server
 // license that can be found in the LICENSE file.
 
 import (
-	"bytes"
 	"log"
 	"net/http"
 	"time"
@@ -74,9 +73,10 @@ func (c *Client) ReadPump() {
 		c.hub.game.message <- &message2
 
 		log.Println(string(message))
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		c.hub.broadcast <- message
+		// message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		// c.hub.broadcast <- message
+
 	}
 }
 
