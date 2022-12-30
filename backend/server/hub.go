@@ -18,14 +18,17 @@ type Hub struct {
 
 	// Unregister requests from clients.
 	unregister chan *Client
+
+	game Game
 }
 
-func NewHub() *Hub {
+func NewHub(game Game) *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		game:       game,
 	}
 }
 
