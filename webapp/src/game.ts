@@ -1,6 +1,6 @@
 import WZDConnection from "./connection";
 
-const URL = "192.168.0.30:9090/ws";
+const URL = "192.168.0.33:9090/ws";
 
 export default class Game {
     conn: WZDConnection;
