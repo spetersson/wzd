@@ -18,7 +18,7 @@ type message struct {
 }
 
 func main() {
-	listen, err := net.Listen("tcp", "localhost:9090")
+	listen, err := net.Listen("tcp", "0.0.0.0:9090")
 	if err != nil {
 		log.Fatal(err)
 	}
