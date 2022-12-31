@@ -10,7 +10,7 @@ export default class WZDConnection {
                 return;
             }
 
-            this.conn = new WebSocket(`ws://${path}`);
+            this.conn = new WebSocket(`ws://${path}/ws`);
             this.conn.onerror = () => {
                 this.conn = null;
                 reject(new Error("Failed to connect"));
@@ -37,8 +37,12 @@ export default class WZDConnection {
 
     private async onmessage(ev: MessageEvent) {
         console.log("Message:", ev.data);
-        const data = JSON.parse(String(ev.data));
-        this.receive(data);
+        try {
+            const data = JSON.parse(String(ev.data));
+            this.receive(data);
+        } catch (err) {
+            console.error(`Failed to parse message: '${String(ev.data)}'`);
+        }
     }
     private async onerror(ev: Event) {
         console.error(ev);
