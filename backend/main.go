@@ -34,7 +34,7 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		server.ServeWs(hub, w, r)
 	})
-	host := "0.0.0.0:8080"
+	host := "0.0.0.0:7070"
 	fmt.Printf("Starting server on '%s'\n", host)
 	err := http.ListenAndServe(host, nil)
 	if err != nil {
