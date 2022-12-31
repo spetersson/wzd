@@ -45,10 +45,13 @@ async function startGame(host: string, nick: string) {
     canvas.height = H;
     const gc = canvas.getContext("2d");
 
+    let lastTime = Date.now();
     const loop = async () => {
-        console.log("loop");
-        await game.update();
+        const now = Date.now();
+        await game.update((now - lastTime) / 1000);
         await game.draw(gc, W, H);
+
+        lastTime = now;
         requestAnimationFrame(loop);
     };
     loop();

@@ -2,9 +2,11 @@ package main
 
 import (
 	// "flag"
-	"github.com/spetersson/wzd/backend/server"
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/spetersson/wzd/backend/server"
 )
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +34,9 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		server.ServeWs(hub, w, r)
 	})
-	err := http.ListenAndServe("0.0.0.0:8080", nil)
+	host := "0.0.0.0:8080"
+	fmt.Printf("Starting server on '%s'\n", host)
+	err := http.ListenAndServe(host, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

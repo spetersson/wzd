@@ -3,37 +3,67 @@ import worldMap from "./assets/world.map.json";
 import Inputs from "./inputs";
 
 const VIEW_W = 50;
+const SPEED = 10;
+
+interface Player {
+    nick: string;
+    x: number;
+    y: number;
+}
+
+interface GetMsgUpdate {
+    type: "update";
+    players: Player[];
+}
+
+type Msg = GetMsgUpdate;
 
 export default class Game {
+    nick: string;
     x: number;
     y: number;
     conn: WZDConnection;
     inputs: Inputs;
 
+    players: Player[];
+
     constructor() {
-        this.x = worldMap.width * Math.random();
-        this.y = worldMap.height * Math.random();
+        this.x = worldMap.width * 0.5;
+        this.y = worldMap.height * 0.5;
         this.inputs = new Inputs();
+        this.players = [];
     }
 
     async join(host: string, nick: string) {
+        this.nick = nick;
         this.conn = new WZDConnection(this.receive.bind(this));
         await this.conn.connect(host);
         this.conn.send({ type: "join", nick });
     }
-    receive(data: Record<string, any>) {}
-    async update() {
-        if (this.inputs.isDown("ArrowUp")) {
-            this.y -= 0.05;
+    receive(msg: Msg) {
+        if (msg.type === "update") {
+            this.players = msg.players;
         }
-        if (this.inputs.isDown("ArrowDown")) {
-            this.y += 0.05;
+    }
+    async update(dt: number) {
+        let moved = false;
+        const movement = SPEED * dt;
+        if (this.inputs.isDown("ArrowUp")) {
+            this.y -= movement;
+            moved = true;
+        } else if (this.inputs.isDown("ArrowDown")) {
+            this.y += movement;
+            moved = true;
         }
         if (this.inputs.isDown("ArrowLeft")) {
-            this.x -= 0.05;
+            this.x -= movement;
+            moved = true;
+        } else if (this.inputs.isDown("ArrowRight")) {
+            this.x += movement;
+            moved = true;
         }
-        if (this.inputs.isDown("ArrowRight")) {
-            this.x += 0.05;
+        if (moved) {
+            this.conn.send({ type: "move", x: this.x, y: this.y });
         }
     }
     async draw(gc: CanvasRenderingContext2D, w: number, h: number) {
@@ -79,6 +109,20 @@ export default class Game {
             }
         }
 
+        for (const player of this.players) {
+            if (player.nick === this.nick) {
+                continue;
+            }
+            const { x, y } = idxToScreen(player.x, player.y);
+            gc.fillStyle = "#C11";
+            gc.beginPath();
+            gc.ellipse(x, y, tileW * 0.45, tileW * 0.45, 0, 0, Math.PI * 2);
+            gc.closePath();
+            gc.fill();
+            gc.fillStyle = "#000";
+            gc.font = "30px Arial";
+            gc.fillText(player.nick, x + tileW * 0.5, y - tileW * 0.5);
+        }
         gc.fillStyle = "#F00";
         gc.beginPath();
         gc.ellipse(
