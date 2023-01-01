@@ -47,18 +47,18 @@ export default class Game {
     }
     async update(dt: number) {
         let moved = false;
-        const movement = SPEED * dt;
-        if (this.inputs.isDown("ArrowUp")) {
+        const movement = SPEED * dt * (this.inputs.isDown("ShiftLeft") ? 2 : 1);
+        if (this.inputs.isDown("ArrowUp") || this.inputs.isDown("KeyW")) {
             this.y -= movement;
             moved = true;
-        } else if (this.inputs.isDown("ArrowDown")) {
+        } else if (this.inputs.isDown("ArrowDown") || this.inputs.isDown("KeyS")) {
             this.y += movement;
             moved = true;
         }
-        if (this.inputs.isDown("ArrowLeft")) {
+        if (this.inputs.isDown("ArrowLeft") || this.inputs.isDown("KeyA")) {
             this.x -= movement;
             moved = true;
-        } else if (this.inputs.isDown("ArrowRight")) {
+        } else if (this.inputs.isDown("ArrowRight") || this.inputs.isDown("KeyD")) {
             this.x += movement;
             moved = true;
         }
@@ -100,12 +100,12 @@ export default class Game {
                 }
                 const isLand = worldMap.data[iy][ix];
                 if (isLand) {
-                    gc.fillStyle = "#0F0";
+                    gc.fillStyle = "#4C6";
                 } else {
-                    gc.fillStyle = "#00F";
+                    gc.fillStyle = "#46C";
                 }
                 const { x, y } = idxToScreen(ix, iy);
-                gc.fillRect(x, y, tileW, tileW);
+                gc.fillRect(x-1, y-1, tileW+2, tileW+2);
             }
         }
 

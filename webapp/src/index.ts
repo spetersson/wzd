@@ -1,31 +1,9 @@
 import Game from "./game";
 
-const W = 1800;
-const H = 1200;
-
-function getElems() {
+window.onload = () => {
     const joinForm = document.getElementById("join-form") as HTMLFormElement;
     const hostField = document.getElementById("host-field") as HTMLInputElement;
     const nameField = document.getElementById("name-field") as HTMLInputElement;
-    const joinContainer = document.getElementById(
-        "join-container"
-    ) as HTMLDivElement;
-    const gameContainer = document.getElementById(
-        "game-container"
-    ) as HTMLDivElement;
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    return {
-        joinForm,
-        hostField,
-        nameField,
-        joinContainer,
-        gameContainer,
-        canvas,
-    };
-}
-
-window.onload = () => {
-    const { joinForm, hostField, nameField } = getElems();
     joinForm.onsubmit = (evt: SubmitEvent) => {
         evt.preventDefault();
         startGame(hostField.value, nameField.value);
@@ -33,7 +11,13 @@ window.onload = () => {
 };
 
 async function startGame(host: string, nick: string) {
-    const { joinContainer, gameContainer, canvas } = getElems();
+    const joinContainer = document.getElementById(
+        "join-container"
+    ) as HTMLDivElement;
+    const gameContainer = document.getElementById(
+        "game-container"
+    ) as HTMLDivElement;
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
     const game = new Game();
     await game.join(host, nick);
@@ -41,15 +25,23 @@ async function startGame(host: string, nick: string) {
     joinContainer.style.display = "none";
     gameContainer.style.display = "block";
 
-    canvas.width = W;
-    canvas.height = H;
+    let width = 0, height = 0;
+    const resize = () => {
+        width = gameContainer.clientWidth
+        height = gameContainer.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+    }
+    resize();
+    window.onresize = resize;
+
     const gc = canvas.getContext("2d");
 
     let lastTime = Date.now();
     const loop = async () => {
         const now = Date.now();
         await game.update((now - lastTime) / 1000);
-        await game.draw(gc, W, H);
+        await game.draw(gc, width, height);
 
         lastTime = now;
         requestAnimationFrame(loop);
