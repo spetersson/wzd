@@ -1,4 +1,5 @@
 import Game from "./game";
+import { getWorldMap } from "./map";
 
 window.onload = () => {
     const joinForm = document.getElementById("join-form") as HTMLFormElement;
@@ -19,7 +20,8 @@ async function startGame(host: string, nick: string) {
     ) as HTMLDivElement;
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
-    const game = new Game();
+    const worldMap = await getWorldMap();
+    const game = new Game(worldMap);
     await game.join(host, nick);
 
     joinContainer.style.display = "none";

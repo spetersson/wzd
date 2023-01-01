@@ -1,6 +1,6 @@
 import WZDConnection from "./connection";
-import worldMap from "./assets/world.map.json";
 import Inputs from "./inputs";
+import { MapData } from "./map";
 
 const VIEW_W = 50;
 const SPEED = 10;
@@ -27,9 +27,9 @@ export default class Game {
 
     players: Player[];
 
-    constructor() {
-        this.x = worldMap.width * 0.5;
-        this.y = worldMap.height * 0.5;
+    constructor(private map: MapData) {
+        this.x = map.width * 0.5;
+        this.y = map.height * 0.5;
         this.inputs = new Inputs();
         this.players = [];
     }
@@ -92,20 +92,20 @@ export default class Game {
             for (let ix = minIX; ix <= maxIX; ix++) {
                 if (
                     ix < 0 ||
-                    ix >= worldMap.width ||
+                    ix >= this.map.width ||
                     iy < 0 ||
-                    iy >= worldMap.height
+                    iy >= this.map.height
                 ) {
                     continue;
                 }
-                const isLand = worldMap.data[iy][ix];
+                const isLand = this.map.data[iy][ix];
                 if (isLand) {
                     gc.fillStyle = "#4C6";
                 } else {
                     gc.fillStyle = "#46C";
                 }
                 const { x, y } = idxToScreen(ix, iy);
-                gc.fillRect(x-1, y-1, tileW+2, tileW+2);
+                gc.fillRect(x - 1, y - 1, tileW + 2, tileW + 2);
             }
         }
 
