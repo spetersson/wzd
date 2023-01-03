@@ -1,4 +1,4 @@
-import worldMapUrl from './assets/world.map.png'
+import worldMapUrl from '../assets/world.map.png'
 
 export interface MapData {
     width: number

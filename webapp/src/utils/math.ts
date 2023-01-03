@@ -5,11 +5,11 @@ export interface Vec {
 
 export function Vec(): Vec
 export function Vec(x: number, y: number): Vec
-export function Vec(x?: number, y?: number): Vec {
-    if (typeof x !== 'number') {
-        return { x: 0, y: 0 }
+export function Vec(x?: unknown, y?: unknown): Vec {
+    return {
+        x: typeof x === 'number' ? x : 0,
+        y: typeof y === 'number' ? y : 0,
     }
-    return { x, y }
 }
 
 export function isZero(a: Vec) {

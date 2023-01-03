@@ -1,7 +1,19 @@
-import WZDConnection from './connection'
-import Inputs from './inputs'
-import { MapData } from './map'
-import { add, dot, iadd, imul, inormalize, isZero, mul, sub, Vec } from './math'
+import { Component } from '.'
+import Connection from '../server/connection'
+import Inputs from '../utils/inputs'
+import { MapData } from '../utils/map'
+import {
+    add,
+    dot,
+    iadd,
+    imul,
+    inormalize,
+    isZero,
+    mul,
+    sub,
+    Vec,
+} from '../utils/math'
+import { GetPackage, Player } from '../server/packages-get'
 
 const VIEW_W = 50
 const MAX_REG_SPEED = 10
@@ -10,46 +22,76 @@ const ACC = 40
 const SLOWDOWN = 2
 const playerRad = 0.45
 
-interface Player {
-    nick: string
-    x: number
-    y: number
-}
-
-interface GetMsgUpdate {
-    type: 'update'
-    players: Player[]
-}
-
-type Msg = GetMsgUpdate
-
-export default class Game {
-    nick: string
+export default class Game extends Component {
+    container: HTMLDivElement
+    canvas: HTMLCanvasElement
+    username: string
     pos: Vec
     vel: Vec
-    conn: WZDConnection
-    inputs: Inputs
+    width: number
+    height: number
+    focused: boolean
 
     players: Player[]
 
-    constructor(private map: MapData) {
+    constructor(
+        private map: MapData,
+        private conn: Connection,
+        private inputs: Inputs
+    ) {
+        super()
+
+        this.container = document.getElementById(
+            'game-container'
+        ) as HTMLDivElement
+        this.canvas = document.getElementById('canvas') as HTMLCanvasElement
+
         this.pos = Vec(458.8449469675175, 237.25534150650404)
         this.vel = Vec(0, 0)
-        this.inputs = new Inputs()
+        this.focused = false
         this.players = []
+
+        this.resize()
+        window.onresize = this.resize.bind(this)
     }
 
-    async join(host: string, nick: string) {
-        this.nick = nick
-        this.conn = new WZDConnection(this.receive.bind(this))
-        await this.conn.connect(host)
-        this.conn.send({ type: 'join', nick })
+    _unfocus() {
+        this.focused = false
+    }
+
+    _focus() {
+        this.focused = true
+    }
+    _show() {
+        this.container.style.display = 'block'
+        this.resize()
+    }
+    _hide() {
+        this.container.style.display = 'none'
+    }
+
+    async join(username: string) {
+        this.username = username
+        this.conn.send({ type: 'join', nick: username })
+    }
+
+    receive(pkg: GetPackage) {
+        if (pkg.type === 'update') {
+            this.players = pkg.players
+        }
     }
     async update(dt: number) {
         this.move(dt)
         this.collide()
     }
-    async draw(gc: CanvasRenderingContext2D, w: number, h: number) {
+    async draw() {
+        const w = this.width
+        const h = this.height
+        if (w === 0 || h === 0) {
+            return
+        }
+
+        const gc = this.canvas.getContext('2d')
         gc.clearRect(0, 0, w, h)
 
         const viewH = (VIEW_W * h) / w
@@ -90,7 +132,7 @@ export default class Game {
         }
 
         for (const player of this.players) {
-            if (player.nick === this.nick) {
+            if (player.nick === this.username) {
                 continue
             }
             const { x, y } = idxToScreen(player)
@@ -127,11 +169,9 @@ export default class Game {
     }
 
     // Private methods
-
-    private receive(msg: Msg) {
-        if (msg.type === 'update') {
-            this.players = msg.players
-        }
+    private resize() {
+        this.width = this.canvas.width = this.container.clientWidth
+        this.height = this.canvas.height = this.container.clientHeight
     }
     private move(dt: number) {
         const delta = Vec()
@@ -157,7 +197,7 @@ export default class Game {
         )
 
         // Check if input is given
-        if (!isZero(delta)) {
+        if (!isZero(delta) && this.focused) {
             // Normalize delta vector if needed
             if (delta.x !== 0 && delta.y !== 0) {
                 inormalize(delta)

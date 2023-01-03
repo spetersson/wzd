@@ -1,7 +1,10 @@
-export default class WZDConnection {
+import { GetPackage } from './packages-get'
+import { SendPackage } from './packages-send'
+
+export default class Connection {
     private conn: WebSocket
 
-    constructor(private receive: (data: Record<string, any>) => void) {}
+    constructor(private receive: (data: GetPackage) => void) {}
 
     async connect(path: string) {
         return new Promise<void>((resolve, reject) => {
@@ -27,7 +30,7 @@ export default class WZDConnection {
         })
     }
 
-    send(data: Record<string, any>) {
+    send(data: SendPackage) {
         if (!this.conn) {
             throw new Error(`Can't send, not connected`)
         }
@@ -36,11 +39,17 @@ export default class WZDConnection {
     }
 
     private async onmessage(ev: MessageEvent) {
-        console.log('Message:', ev.data)
         try {
             const data = JSON.parse(String(ev.data))
+            if (typeof data !== 'object') {
+                throw new Error('Package was not a object')
+            }
+            if (!('type' in data)) {
+                throw new Error('Package did not have a type field')
+            }
             this.receive(data)
         } catch (err) {
+            console.error(err)
             console.error(`Failed to parse message: '${String(ev.data)}'`)
         }
     }
