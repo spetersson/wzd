@@ -4,8 +4,18 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>WZD</title>
+        <title>World Zombie Defence</title>
         <style>
+            *,
+            html {
+                box-sizing: border-box;
+            }
+            *,
+            *:before,
+            *:after {
+                box-sizing: inherit;
+            }
+
             html,
             body,
             #join-container,
@@ -14,6 +24,7 @@
                 height: 100%;
                 margin: 0;
                 padding: 0;
+                overflow: hidden;
             }
             #join-container {
                 display: flex;
@@ -25,12 +36,68 @@
                 flex-direction: column;
                 justify-content: center;
             }
-
             #host-field {
                 margin-bottom: 0.2rem;
             }
             #name-field {
                 margin-bottom: 0.5rem;
+            }
+
+            #chat-container {
+                display: flex;
+                flex-direction: column;
+                width: 40rem;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                position: absolute;
+                font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+                    sans-serif;
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+            #chat-messages {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+            }
+            #chat-messages > * {
+                display: flex;
+                padding: 0 0 0.5rem 0.6rem;
+            }
+            .chat-username {
+                font-weight: bold;
+                margin-right: 0.4rem;
+            }
+            .chat-username::after {
+                font-weight: bold;
+                margin-left: 0.2rem;
+                content: ':';
+            }
+            #chat-textbox {
+                height: 2.5rem;
+                display: flex;
+                align-items: center;
+                border-top: 1px solid #666;
+            }
+            #chat-textbox > span {
+                font-weight: bold;
+                margin-left: 0.6rem;
+                display: flex;
+                align-items: center;
+            }
+            #chat-textbox > span::after {
+                font-weight: bold;
+                margin-left: 0.2rem;
+                margin-right: 0.3rem;
+                content: ':';
+            }
+            #chat-textbox > input {
+                flex-grow: 1;
+                outline: none;
+                background-color: transparent;
+                border: 0;
             }
 
             #game-container {
@@ -52,10 +119,17 @@
                 <input
                     id="name-field"
                     type="text"
-                    placeholder="Enter your nick"
+                    placeholder="Enter your username"
                 />
                 <input class="submit" type="submit" value="Join" />
             </form>
+        </div>
+        <div id="chat-container">
+            <div id="chat-messages"></div>
+            <div id="chat-textbox">
+                <span id="chat-player-username"> </span>
+                <input id="chat-input" type="text" />
+            </div>
         </div>
         <div id="game-container" style="display: none">
             <canvas id="canvas"></canvas>

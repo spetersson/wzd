@@ -10,9 +10,13 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
+      },
+      {
+        test: /\.png$/,
+        use: 'url-loader',
       },
     ],
   },
@@ -23,5 +27,5 @@ module.exports = {
     filename: 'bundle.js',
     path: dist,
   },
-  plugins: [new HtmlWebpackPlugin({template: path.join(src, 'index.html')})],
+  plugins: [new HtmlWebpackPlugin({ template: path.join(src, 'index.html'),  })],
 };
