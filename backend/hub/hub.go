@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,12 +11,17 @@ const (
 	HOST = "0.0.0.0:7070"
 )
 
+type Packet struct {
+	Client *Client
+	Data   map[string]any
+}
+
 type Hub struct {
 	clients    map[*Client]bool
 	broadcast  chan []byte
 	register   chan *Client
 	unregister chan *Client
-	receiver   chan map[string]any
+	receiver   chan *Packet
 }
 
 func NewHub() *Hub {
@@ -24,6 +30,7 @@ func NewHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		receiver:   make(chan *Packet),
 	}
 }
 
@@ -61,12 +68,18 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) Receiver() chan map[string]any {
+func (h *Hub) Receiver() chan *Packet {
 	return h.receiver
 }
 
 func (h *Hub) SendAll(packet map[string]any) {
-	// TODO Send packet to all clients
+	data, err := json.Marshal(packet)
+	if err != nil {
+		log.Printf("Unable to marshal packet: %v", packet)
+		return
+	}
+
+	h.broadcast <- data
 }
 
 func (h *Hub) SendTo(client string, packet map[string]any) {

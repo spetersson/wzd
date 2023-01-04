@@ -1,6 +1,8 @@
 export interface SendPackageJoin {
     type: 'join'
-    nick: string
+    username: string
+    x: number
+    y: number
 }
 export interface SendPackageMove {
     type: 'move'

@@ -25,7 +25,6 @@ const (
 
 var (
 	newline = []byte{'\n'}
-	space   = []byte{' '}
 )
 
 var upgrader = websocket.Upgrader{
@@ -65,7 +64,7 @@ func (c *Client) ReadPump() {
 			log.Printf("Unable to marshal packet: %s", string(data))
 			continue
 		}
-		c.hub.receiver <- packet
+		c.hub.receiver <- &Packet{Client: c, Data: packet}
 	}
 }
 

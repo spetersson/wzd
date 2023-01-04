@@ -20,7 +20,7 @@ type Enemy struct {
 type Game struct {
 	server  *hub.Hub
 	gameMap game_map.GameMap
-	players map[string]*Player
+	players map[*hub.Client]*Player
 	enemies map[int]*Enemy
 	done    chan bool
 }

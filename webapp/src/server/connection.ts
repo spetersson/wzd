@@ -34,7 +34,6 @@ export default class Connection {
         if (!this.conn) {
             throw new Error(`Can't send, not connected`)
         }
-
         this.conn.send(JSON.stringify(data))
     }
 

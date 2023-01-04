@@ -72,7 +72,7 @@ export default class Game extends Component {
 
     async join(username: string) {
         this.username = username
-        this.conn.send({ type: 'join', nick: username })
+        this.conn.send({ type: 'join', username, x: this.pos.x, y: this.pos.y })
     }
 
     receive(pkg: GetPackage) {
