@@ -1,5 +1,5 @@
 export interface Player {
-    nick: string
+    username: string
     x: number
     y: number
 }
@@ -10,7 +10,7 @@ export interface GetPackageUpdate {
 }
 export interface GetPackageMessage {
     type: 'message'
-    nick: string
+    username: string
     message: string
 }
 

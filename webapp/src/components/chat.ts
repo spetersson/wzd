@@ -89,14 +89,17 @@ export class Chat extends Component {
             timestamp: Date.now(),
         })
     }
-    receive(pkg: GetPackage) {}
+    receive(pkg: GetPackage) {
+        if (pkg.type === 'message') {
+            this.addMessage(pkg.username, pkg.message)
+        }
+    }
 
     sendMsg() {
         if (this.status === 'hide' || this.chatInput.value.length === 0) {
             return
         }
-        // TODO: Remove next line and send to server instead
-        this.addMessage(this.username, this.chatInput.value)
+        this.conn.send({ type: 'chat', message: this.chatInput.value })
         this.chatInput.value = ''
     }
 

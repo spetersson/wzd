@@ -9,5 +9,9 @@ export interface SendPackageMove {
     x: number
     y: number
 }
+export interface SendPackageChat {
+    type: 'chat'
+    message: string
+}
 
-export type SendPackage = SendPackageJoin | SendPackageMove
+export type SendPackage = SendPackageJoin | SendPackageMove | SendPackageChat

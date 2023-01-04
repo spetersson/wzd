@@ -132,7 +132,7 @@ export default class Game extends Component {
         }
 
         for (const player of this.players) {
-            if (player.nick === this.username) {
+            if (player.username === this.username) {
                 continue
             }
             const { x, y } = idxToScreen(player)
@@ -151,7 +151,7 @@ export default class Game extends Component {
             gc.fill()
             gc.fillStyle = '#000'
             gc.font = '30px Arial'
-            gc.fillText(player.nick, x + tileW * 0.5, y - tileW * 0.5)
+            gc.fillText(player.username, x + tileW * 0.5, y - tileW * 0.5)
         }
         gc.fillStyle = '#F00'
         gc.beginPath()
