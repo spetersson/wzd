@@ -3,6 +3,7 @@ package game
 import (
 	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/spetersson/wzd/backend/game_map"
@@ -56,7 +57,7 @@ func (g *Game) update() {
 	list := make([]map[string]any, 0)
 	for _, p := range g.players {
 		playerData := make(map[string]any)
-		playerData["nick"] = p.Username
+		playerData["username"] = p.Username
 		playerData["x"] = p.Pos.X
 		playerData["y"] = p.Pos.Y
 		list = append(list, playerData)
@@ -88,6 +89,7 @@ func (g *Game) receive(client *hub.Client, data map[string]any) {
 			Pos:      vec.Vec{X: x, Y: y},
 		}
 		log.Printf("Player %s joined", username)
+
 	case "move":
 		x, ok1 := data["x"].(float64)
 		y, ok2 := data["y"].(float64)
@@ -97,6 +99,23 @@ func (g *Game) receive(client *hub.Client, data map[string]any) {
 		}
 		g.players[client].Pos.X = x
 		g.players[client].Pos.Y = y
+
+	case "chat":
+		message, ok := data["message"].(string)
+
+		if !ok {
+			log.Printf("Failed to parse message packet %v", data)
+		}
+
+		log.Printf("Player " + g.players[client].Username + " wrote: " + message)
+
+		packet := make(map[string]any)
+		packet["type"] = "message"
+		packet["username"] = g.players[client].Username
+		packet["message"] = message
+
+		g.server.SendAll(packet)
+
 	}
 }
 
