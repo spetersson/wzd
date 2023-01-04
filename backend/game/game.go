@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/spetersson/wzd/backend/game_map"
-	"github.com/spetersson/wzd/backend/vec"
+	"github.com/spetersson/wzd/backend/hub"
 )
 
 const (
@@ -14,74 +14,42 @@ const (
 	UPDATE_INTERVAL = time.Second / 30
 )
 
-type Player struct {
-	Username string  `json:"username"`
-	Pos      vec.Vec `json:"pos"`
-}
-
-type Enemy struct {
-	Id int
-	X  float64
-	Y  float64
-}
-
-type Game struct {
-	gameMap      game_map.GameMap
-	players      map[string]*Player
-	enemies      map[int]*Enemy
-	loopTicker   *time.Ticker
-	updateTicker *time.Ticker
-	done         chan bool
-}
-
-func NewGame() *Game {
+func NewGame(server *hub.Hub) *Game {
 	return &Game{
-		gameMap:      game_map.GetMap(),
-		players:      make(map[string]*Player),
-		enemies:      make(map[int]*Enemy),
-		loopTicker:   nil,
-		updateTicker: nil,
-		done:         make(chan bool),
+		server:  server,
+		gameMap: game_map.GetMap(),
+		players: make(map[string]*Player),
+		enemies: make(map[int]*Enemy),
+		done:    make(chan bool),
 	}
 }
 
 // Halting function that runs the game
 func (g *Game) Run() {
 	// Main game loop
-	g.loopTicker = time.NewTicker(LOOP_INTERVAL)
-	go func() {
-		lastTime := time.Now().UnixMilli()
-		for t := range g.loopTicker.C {
-			now := t.UnixMilli()
+	loopTicker := time.NewTicker(LOOP_INTERVAL)
+	updateTicker := time.NewTicker(UPDATE_INTERVAL)
+	lastTime := time.Now().UnixMilli()
+	for {
+		select {
+		case <-loopTicker.C:
+			now := time.Now().UnixMilli()
 			dt := float64(now-lastTime) / 1000.0
 			g.loop(dt)
 			lastTime = now
-		}
-	}()
-
-	// Send updates
-	g.updateTicker = time.NewTicker(UPDATE_INTERVAL)
-	go func() {
-		for range g.updateTicker.C {
+		case <-updateTicker.C:
 			g.update()
+		case packet := <-g.server.Receiver():
+			g.receive(packet)
 		}
-	}()
-
-	<-g.done
-}
-
-func (g *Game) Stop() {
-	if g.loopTicker != nil {
-		g.loopTicker.Stop()
 	}
-	if g.updateTicker != nil {
-		g.updateTicker.Stop()
-	}
-
-	g.done <- true
 }
 
 func (g *Game) update() {
+}
+
+func (g *Game) receive(packet map[string]any) {
+	log.Print(packet)
 }
 
 func (g *Game) sendMap() {
