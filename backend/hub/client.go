@@ -36,14 +36,13 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	hub  *Hub
 	conn *websocket.Conn
 	send chan []byte
 }
 
-func (c *Client) ReadPump() {
+func (hub *Hub) readPump(c *Client) {
 	defer func() {
-		c.hub.unregister <- c
+		hub.unregister <- c
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
@@ -52,9 +51,6 @@ func (c *Client) ReadPump() {
 	for {
 		_, data, err := c.conn.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
-			}
 			break
 		}
 
@@ -64,11 +60,11 @@ func (c *Client) ReadPump() {
 			log.Printf("Unable to marshal packet: %s", string(data))
 			continue
 		}
-		c.hub.receiver <- &Packet{Client: c, Data: packet}
+		hub.receiver <- &Packet{Client: c, Data: packet}
 	}
 }
 
-func (c *Client) WritePump() {
+func (hub *Hub) writePump(c *Client) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -116,11 +112,11 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	client.hub.register <- client
+	client := &Client{conn: conn, send: make(chan []byte, 256)}
+	hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
-	go client.WritePump()
-	go client.ReadPump()
+	go hub.writePump(client)
+	go hub.readPump(client)
 }

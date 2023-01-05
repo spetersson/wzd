@@ -3,7 +3,6 @@ package game
 import (
 	"encoding/json"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/spetersson/wzd/backend/game_map"
@@ -43,6 +42,11 @@ func (g *Game) Run() {
 			g.update()
 		case packet := <-g.server.Receiver():
 			g.receive(packet.Client, packet.Data)
+		case client := <-g.server.Unregister():
+			if player, ok := g.players[client]; ok {
+				log.Printf("Player %s left", player.Username)
+			}
+			delete(g.players, client)
 		}
 	}
 }

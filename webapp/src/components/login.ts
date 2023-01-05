@@ -31,6 +31,7 @@ export class Login extends Component {
     _unfocus() {}
     _show() {
         this.joinContainer.style.display = 'flex'
+        this.hostField.value = location.host.split(':')[0] + ':7070'
     }
     _hide() {
         this.joinContainer.style.display = 'none'

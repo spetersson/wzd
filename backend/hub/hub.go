@@ -34,24 +34,24 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) Run() {
+func (hub *Hub) Run() {
 	go func() {
 		for {
 			select {
-			case client := <-h.register:
-				h.clients[client] = true
-			case client := <-h.unregister:
-				if _, ok := h.clients[client]; ok {
-					delete(h.clients, client)
+			case client := <-hub.register:
+				hub.clients[client] = true
+			case client := <-hub.unregister:
+				if _, ok := hub.clients[client]; ok {
+					delete(hub.clients, client)
 					close(client.send)
 				}
-			case message := <-h.broadcast:
-				for client := range h.clients {
+			case message := <-hub.broadcast:
+				for client := range hub.clients {
 					select {
 					case client.send <- message:
 					default:
 						close(client.send)
-						delete(h.clients, client)
+						delete(hub.clients, client)
 					}
 				}
 			}
@@ -59,7 +59,7 @@ func (h *Hub) Run() {
 	}()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(h, w, r)
+		serveWs(hub, w, r)
 	})
 	fmt.Printf("Starting server on '%s'\n", HOST)
 	err := http.ListenAndServe(HOST, nil)
@@ -68,20 +68,30 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) Receiver() chan *Packet {
-	return h.receiver
+func (hub *Hub) Unregister() chan *Client {
+	return hub.unregister
 }
 
-func (h *Hub) SendAll(packet map[string]any) {
+func (hub *Hub) Receiver() chan *Packet {
+	return hub.receiver
+}
+
+func (hub *Hub) SendAll(packet map[string]any) {
 	data, err := json.Marshal(packet)
 	if err != nil {
 		log.Printf("Unable to marshal packet: %v", packet)
 		return
 	}
 
-	h.broadcast <- data
+	hub.broadcast <- data
 }
 
-func (h *Hub) SendTo(client string, packet map[string]any) {
+func (hub *Hub) SendTo(client *Client, packet map[string]any) {
+	data, err := json.Marshal(packet)
+	if err != nil {
+		log.Printf("Unable to marshal packet: %v", packet)
+		return
+	}
 
+	client.send <- data
 }
