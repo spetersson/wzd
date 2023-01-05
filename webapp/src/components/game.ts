@@ -31,7 +31,8 @@ export default class Game extends Component {
     username: string
     pos: Vec
     vel: Vec
-    lastDir: Vec
+    dir: Vec
+    sprinting: boolean
     width: number
     height: number
     focused: boolean
@@ -57,7 +58,8 @@ export default class Game extends Component {
 
         this.pos = Vec(458.8449469675175, 237.25534150650404)
         this.vel = Vec()
-        this.lastDir = Vec()
+        this.dir = Vec()
+        this.sprinting = false
         this.focused = false
         this.debug = false
 
@@ -89,13 +91,12 @@ export default class Game extends Component {
 
     async join(username: string) {
         this.username = username
-        this.conn.send({ type: 'join', username, x: this.pos.x, y: this.pos.y })
+        this.conn.send({ type: 'join', username, pos: this.pos })
     }
 
     receive(pkt: GetPacket) {
         switch (pkt.type) {
             case 'update':
-                this.timestamp = pkt.timestamp
                 this.players = pkt.players
                 const player = this.players.find(
                     (p) => p.username === this.username
@@ -106,6 +107,7 @@ export default class Game extends Component {
                 }
                 this.pos = Vec(player.pos)
                 this.vel = Vec(player.vel)
+                this.timestamp = Date.now()
                 break
 
             case 'ping':
@@ -124,7 +126,8 @@ export default class Game extends Component {
         ev.preventDefault()
         this.debug = !this.debug
     }
-    update(dt: number) {
+    update() {
+        const dt = (Date.now() - this.timestamp) / 1000
         this.ping()
         this.move(dt)
         // this.collide()
@@ -256,13 +259,14 @@ export default class Game extends Component {
         ) {
             dir.x += 1
         }
+        const sprinting = this.inputs.isDown('ShiftLeft')
 
-        if (!eq(dir, this.lastDir)) {
-            this.conn.send({ type: 'move', x: dir.x, y: dir.y })
+        if (!eq(dir, this.dir) || this.sprinting != sprinting) {
+            this.conn.send({ type: 'move', dir, sprinting })
         }
-        this.lastDir = Vec(dir)
+        this.dir = Vec(dir)
+        this.sprinting = sprinting
 
-        /*
         const currentSpeed = Math.sqrt(
             this.vel.x * this.vel.x + this.vel.y * this.vel.y
         )
@@ -273,9 +277,7 @@ export default class Game extends Component {
             this.vel = mul(dir, currentSpeed + ACC * dt)
 
             // Limit speed
-            const maxSpeed = this.inputs.isDown('ShiftLeft')
-                ? MAX_SPRINT_SPEED
-                : MAX_REG_SPEED
+            const maxSpeed = this.sprinting ? MAX_SPRINT_SPEED : MAX_REG_SPEED
             if (currentSpeed > maxSpeed) {
                 const ratio = maxSpeed / currentSpeed
                 imul(this.vel, ratio)
@@ -290,9 +292,7 @@ export default class Game extends Component {
         // Check if player is moving
         if (!isZero(this.vel)) {
             iadd(this.pos, mul(this.vel, dt))
-            this.conn.send({ type: 'move', x: this.pos.x, y: this.pos.y })
         }
-        */
     }
     private collide() {
         // Get index range of player bounding box

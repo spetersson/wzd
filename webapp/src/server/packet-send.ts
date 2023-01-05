@@ -1,13 +1,14 @@
+import { Vec } from '../utils/math'
+
 export interface SendPacketJoin {
     type: 'join'
     username: string
-    x: number
-    y: number
+    pos: Vec
 }
 export interface SendPacketMove {
     type: 'move'
-    x: number
-    y: number
+    dir: Vec
+    sprinting: boolean
 }
 export interface SendPacketChat {
     type: 'chat'

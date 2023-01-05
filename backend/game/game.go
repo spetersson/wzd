@@ -13,7 +13,7 @@ const (
 	UPDATE_INTERVAL = time.Second / 30
 )
 
-type dict map[string]any
+type dict = map[string]any
 
 func NewGame(server *hub.Hub) *Game {
 	return &Game{

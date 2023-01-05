@@ -22,8 +22,7 @@ func (game *Game) update() {
 	}
 
 	game.server.SendAll(dict{
-		"type":      "update",
-		"timestamp": game.timestamp,
-		"players":   players,
+		"type":    "update",
+		"players": players,
 	})
 }

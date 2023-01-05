@@ -17,9 +17,14 @@ func (game *Game) receive(client *hub.Client, data dict) {
 	switch pType {
 	case "join":
 		username, ok1 := data["username"].(string)
-		x, ok2 := data["x"].(float64)
-		y, ok3 := data["y"].(float64)
-		if !ok1 || !ok2 || !ok3 {
+		pos, ok2 := data["pos"].(dict)
+		if !ok1 || !ok2 {
+			log.Printf("Failed to parse join packet %v", data)
+			return
+		}
+		x, ok3 := pos["x"].(float64)
+		y, ok4 := pos["y"].(float64)
+		if !ok3 || !ok4 {
 			log.Printf("Failed to parse join packet %v", data)
 			return
 		}
@@ -33,10 +38,16 @@ func (game *Game) receive(client *hub.Client, data dict) {
 		log.Printf("Player %s joined", username)
 
 	case "move":
-		x, ok1 := data["x"].(float64)
-		y, ok2 := data["y"].(float64)
-		if !ok1 || !ok2 {
-			log.Printf("Failed to parse join packet %v", data)
+		dirData, ok1 := data["dir"].(dict)
+		if !ok1 {
+			log.Printf("Failed to parse move packet %v", data)
+			return
+		}
+		x, ok2 := dirData["x"].(float64)
+		y, ok3 := dirData["y"].(float64)
+		sprinting, ok4 := data["sprinting"].(bool)
+		if !ok2 || !ok3 || !ok4 {
+			log.Printf("Failed to parse move packet %v", data)
 			return
 		}
 		dir := vec.NewVec(x, y)
@@ -44,6 +55,7 @@ func (game *Game) receive(client *hub.Client, data dict) {
 			dir.INormalize()
 		}
 		game.players[client].Dir = dir
+		game.players[client].Sprinting = sprinting
 
 	case "chat":
 		message, ok := data["message"].(string)

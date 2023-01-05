@@ -14,7 +14,6 @@ export class WZDApp {
     chat: Chat
 
     inGame: boolean
-    lastTime: number
 
     async init() {
         if (this.conn) {
@@ -47,16 +46,12 @@ export class WZDApp {
         this.inputs.listenUp('Enter', this.onEnterKey.bind(this))
         this.inputs.listenUp('Escape', this.onEscKey.bind(this))
 
-        this.lastTime = Date.now()
         requestAnimationFrame(this.loop.bind(this))
     }
 
     async loop() {
-        const now = Date.now()
-        this.game.update((now - this.lastTime) / 1000)
+        this.game.update()
         this.game.draw()
-
-        this.lastTime = now
         requestAnimationFrame(this.loop.bind(this))
     }
 

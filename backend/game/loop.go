@@ -25,7 +25,6 @@ func (game *Game) loop(dt float64) {
 func (game *Game) movePlayer(player *Player, dt float64) {
 
 	currentSpeed := math.Hypot(player.Vel.X, player.Vel.Y)
-
 	if !player.Dir.IsZero() {
 		// Update velocity
 		player.Vel = player.Dir.Mul(currentSpeed + ACC*dt)
