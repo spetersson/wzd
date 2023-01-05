@@ -9,6 +9,8 @@ import (
 type Player struct {
 	Username string  `json:"username"`
 	Pos      vec.Vec `json:"pos"`
+	Vel      vec.Vec `json:"vel"`
+	Dir      vec.Vec `json:"-"`
 }
 
 type Enemy struct {
@@ -18,9 +20,10 @@ type Enemy struct {
 }
 
 type Game struct {
-	server  *hub.Hub
-	gameMap game_map.GameMap
-	players map[*hub.Client]*Player
-	enemies map[int]*Enemy
-	done    chan bool
+	server    *hub.Hub
+	timestamp int64
+	gameMap   game_map.GameMap
+	players   map[*hub.Client]*Player
+	enemies   map[int]*Enemy
+	done      chan bool
 }

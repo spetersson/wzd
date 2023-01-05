@@ -1,4 +1,4 @@
-export type InputCallback = (key: string) => void
+export type InputCallback = (key: string, ev: Event) => void
 
 export default class Inputs {
     private keysDown: { [key: string]: boolean }
@@ -16,7 +16,7 @@ export default class Inputs {
             }
             this.keysDown[ev.code] = true
             if (typeof callback === 'function') {
-                callback(ev.code)
+                callback(ev.code, ev)
             }
         }
         window.onkeyup = (ev: KeyboardEvent) => {
@@ -26,7 +26,7 @@ export default class Inputs {
             }
             this.keysDown[ev.code] = false
             if (typeof callback === 'function') {
-                callback(ev.code)
+                callback(ev.code, ev)
             }
         }
     }

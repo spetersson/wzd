@@ -4,7 +4,7 @@ import Game from './components/game'
 import { Login } from './components/login'
 import { getWorldMap } from './utils/map'
 import Inputs from './utils/inputs'
-import { GetPackage } from './server/packages-get'
+import { GetPacket } from './server/packet-get'
 
 export class WZDApp {
     inputs: Inputs
@@ -60,7 +60,7 @@ export class WZDApp {
         requestAnimationFrame(this.loop.bind(this))
     }
 
-    private receive(pkg: GetPackage) {
+    private receive(pkg: GetPacket) {
         this.game.receive(pkg)
         this.chat.receive(pkg)
     }

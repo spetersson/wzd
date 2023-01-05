@@ -1,10 +1,10 @@
-import { GetPackage } from './packages-get'
-import { SendPackage } from './packages-send'
+import { GetPacket } from './packet-get'
+import { SendPacket } from './packet-send'
 
 export default class Connection {
     private conn: WebSocket
 
-    constructor(private receive: (data: GetPackage) => void) {}
+    constructor(private receive: (data: GetPacket) => void) {}
 
     async connect(path: string) {
         return new Promise<void>((resolve, reject) => {
@@ -30,7 +30,7 @@ export default class Connection {
         })
     }
 
-    send(data: SendPackage) {
+    send(data: SendPacket) {
         if (!this.conn) {
             throw new Error(`Can't send, not connected`)
         }
@@ -38,18 +38,40 @@ export default class Connection {
     }
 
     private async onmessage(ev: MessageEvent) {
+        // Split message into packets if needed
+        let packetsRaw: string[]
         try {
-            const data = JSON.parse(String(ev.data))
-            if (typeof data !== 'object') {
-                throw new Error('Package was not a object')
+            if (typeof ev.data !== 'string') {
+                throw new Error(
+                    `Expected data to be a string, got ${typeof ev.data}`
+                )
             }
-            if (!('type' in data)) {
-                throw new Error('Package did not have a type field')
-            }
-            this.receive(data)
+            packetsRaw = ev.data
+                .split('\n')
+                .map((p) => p.trim())
+                .filter((p) => Boolean(p))
         } catch (err) {
             console.error(err)
             console.error(`Failed to parse message: '${String(ev.data)}'`)
+            return
+        }
+
+        // Handle each packet
+        for (const packetRaw of packetsRaw) {
+            try {
+                const packet = JSON.parse(packetRaw)
+                if (typeof packet !== 'object') {
+                    throw new Error('Packet was not a object')
+                }
+                if (!('type' in packet)) {
+                    throw new Error('Packet did not have a type field')
+                }
+                this.receive(packet)
+            } catch (err) {
+                console.error(err)
+                console.error(`Failed to parse packet: '${packetRaw}'`)
+                return
+            }
         }
     }
     private async onerror(ev: Event) {

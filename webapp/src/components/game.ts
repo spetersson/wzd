@@ -13,14 +13,16 @@ import {
     sub,
     Vec,
 } from '../utils/math'
-import { GetPackage, Player } from '../server/packages-get'
+import { GetPacket, Player } from '../server/packet-get'
 
 const VIEW_W = 50
 const MAX_REG_SPEED = 10
 const MAX_SPRINT_SPEED = 15
 const ACC = 40
 const SLOWDOWN = 2
-const playerRad = 0.45
+const PLAYER_RAD = 0.45
+const PING_INTERVAL = 500
+const NUM_PINGS_AVG = 10
 
 export default class Game extends Component {
     container: HTMLDivElement
@@ -31,7 +33,12 @@ export default class Game extends Component {
     width: number
     height: number
     focused: boolean
+    debug: boolean
 
+    timestamp: number
+    latency: number
+    lastPing: number
+    pings: number[]
     players: Player[]
 
     constructor(
@@ -49,10 +56,17 @@ export default class Game extends Component {
         this.pos = Vec(458.8449469675175, 237.25534150650404)
         this.vel = Vec(0, 0)
         this.focused = false
+        this.debug = false
+
+        this.timestamp = 0
+        this.latency = 0
+        this.lastPing = 0
+        this.pings = []
         this.players = []
 
         this.resize()
         window.onresize = this.resize.bind(this)
+        this.inputs.listenDown('Tab', this.onTab.bind(this))
     }
 
     _unfocus() {
@@ -75,16 +89,27 @@ export default class Game extends Component {
         this.conn.send({ type: 'join', username, x: this.pos.x, y: this.pos.y })
     }
 
-    receive(pkg: GetPackage) {
+    receive(pkg: GetPacket) {
         if (pkg.type === 'update') {
+            this.timestamp = pkg.timestamp
             this.players = pkg.players
+        } else if (pkg.type === 'ping') {
+            this.updateLatency(Date.now() - pkg.timestamp)
         }
     }
-    async update(dt: number) {
+    onTab(key: string, ev: Event) {
+        if (!this.focused) {
+            return
+        }
+        ev.preventDefault()
+        this.debug = !this.debug
+    }
+    update(dt: number) {
+        this.ping()
         this.move(dt)
         this.collide()
     }
-    async draw() {
+    draw() {
         const w = this.width
         const h = this.height
         if (w === 0 || h === 0) {
@@ -135,14 +160,14 @@ export default class Game extends Component {
             if (player.username === this.username) {
                 continue
             }
-            const { x, y } = idxToScreen(player)
+            const { x, y } = idxToScreen(player.pos)
             gc.fillStyle = '#C11'
             gc.beginPath()
             gc.ellipse(
                 x,
                 y,
-                tileW * playerRad,
-                tileW * playerRad,
+                tileW * PLAYER_RAD,
+                tileW * PLAYER_RAD,
                 0,
                 0,
                 Math.PI * 2
@@ -158,20 +183,40 @@ export default class Game extends Component {
         gc.ellipse(
             w * 0.5,
             h * 0.5,
-            tileW * playerRad,
-            tileW * playerRad,
+            tileW * PLAYER_RAD,
+            tileW * PLAYER_RAD,
             0,
             0,
             Math.PI * 2
         )
         gc.closePath()
         gc.fill()
+
+        if (this.debug) {
+            gc.fillStyle = 'rgba(0,0,0,0.6)'
+            gc.fillRect(0, 0, w, 50)
+            gc.fillStyle = '#FFF'
+            gc.font = '30px Arial'
+            gc.fillText(`PING: ${this.latency.toFixed(0)}`, 10, 35)
+        }
     }
 
     // Private methods
     private resize() {
         this.width = this.canvas.width = this.container.clientWidth
         this.height = this.canvas.height = this.container.clientHeight
+    }
+    private ping() {
+        const now = Date.now()
+        if (now - this.lastPing > PING_INTERVAL) {
+            this.conn.send({ type: 'ping', timestamp: now })
+            this.lastPing = now
+        }
+    }
+    private updateLatency(latency: number) {
+        this.pings.unshift(latency)
+        this.pings = this.pings.slice(0, NUM_PINGS_AVG)
+        this.latency = this.pings.reduce((p, c) => p + c) / this.pings.length
     }
     private move(dt: number) {
         const delta = Vec()
@@ -230,12 +275,12 @@ export default class Game extends Component {
     private collide() {
         // Get index range of player bounding box
         const minI = Vec(
-            Math.floor(this.pos.x - playerRad),
-            Math.floor(this.pos.y - playerRad)
+            Math.floor(this.pos.x - PLAYER_RAD),
+            Math.floor(this.pos.y - PLAYER_RAD)
         )
         const maxI = Vec(
-            Math.floor(this.pos.x + playerRad),
-            Math.floor(this.pos.x + playerRad)
+            Math.floor(this.pos.x + PLAYER_RAD),
+            Math.floor(this.pos.x + PLAYER_RAD)
         )
 
         // Check all blocks in index range
@@ -280,9 +325,9 @@ export default class Game extends Component {
                 // scalar is the distance from the block to the player
 
                 // Check if player is inside block
-                if (scalar < playerRad) {
+                if (scalar < PLAYER_RAD) {
                     // Distance needed to move out of the block
-                    const dist = playerRad - scalar
+                    const dist = PLAYER_RAD - scalar
                     iadd(this.pos, mul(lineNorm, dist))
                 }
             }

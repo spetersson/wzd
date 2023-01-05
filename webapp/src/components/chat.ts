@@ -1,6 +1,6 @@
 import { Component } from '.'
 import Connection from '../server/connection'
-import { GetPackage } from '../server/packages-get'
+import { GetPacket } from '../server/packet-get'
 
 const PERSISTENCE_TIME = 10 * 1000 // 10 sec
 
@@ -89,7 +89,7 @@ export class Chat extends Component {
             timestamp: Date.now(),
         })
     }
-    receive(pkg: GetPackage) {
+    receive(pkg: GetPacket) {
         if (pkg.type === 'message') {
             this.addMessage(pkg.username, pkg.message)
         }
