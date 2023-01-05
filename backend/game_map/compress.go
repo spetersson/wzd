@@ -8,7 +8,7 @@ func (gm *GameMap) Compress() map[string]any {
 	tilesStr := ""
 	for _, row := range gm.tiles {
 		for _, tile := range row {
-			if tile {
+			if tile.Walkable {
 				tilesStr += "X"
 			} else {
 				tilesStr += " "
