@@ -24,8 +24,11 @@ func (game *Game) receive(client *hub.Client, data dict) {
 			return
 		}
 		game.players[client] = &Player{
-			Username: username,
-			Pos:      vec.Vec{X: x, Y: y},
+			Username:  username,
+			Pos:       vec.NewVec(x, y),
+			Vel:       vec.NewVec(0, 0),
+			Dir:       vec.NewVec(0, 0),
+			Sprinting: false,
 		}
 		log.Printf("Player %s joined", username)
 
@@ -36,8 +39,11 @@ func (game *Game) receive(client *hub.Client, data dict) {
 			log.Printf("Failed to parse join packet %v", data)
 			return
 		}
-		game.players[client].Pos.X = x
-		game.players[client].Pos.Y = y
+		dir := vec.NewVec(x, y)
+		if !dir.IsZero() {
+			dir.INormalize()
+		}
+		game.players[client].Dir = dir
 
 	case "chat":
 		message, ok := data["message"].(string)

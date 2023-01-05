@@ -5,6 +5,7 @@ import { MapData } from '../utils/map'
 import {
     add,
     dot,
+    eq,
     iadd,
     imul,
     inormalize,
@@ -30,6 +31,7 @@ export default class Game extends Component {
     username: string
     pos: Vec
     vel: Vec
+    lastDir: Vec
     width: number
     height: number
     focused: boolean
@@ -46,7 +48,7 @@ export default class Game extends Component {
         private conn: Connection,
         private inputs: Inputs
     ) {
-        super()
+        super(['update', 'ping'])
 
         this.container = document.getElementById(
             'game-container'
@@ -54,7 +56,8 @@ export default class Game extends Component {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement
 
         this.pos = Vec(458.8449469675175, 237.25534150650404)
-        this.vel = Vec(0, 0)
+        this.vel = Vec()
+        this.lastDir = Vec()
         this.focused = false
         this.debug = false
 
@@ -89,15 +92,32 @@ export default class Game extends Component {
         this.conn.send({ type: 'join', username, x: this.pos.x, y: this.pos.y })
     }
 
-    receive(pkg: GetPacket) {
-        if (pkg.type === 'update') {
-            this.timestamp = pkg.timestamp
-            this.players = pkg.players
-        } else if (pkg.type === 'ping') {
-            this.updateLatency(Date.now() - pkg.timestamp)
+    receive(pkt: GetPacket) {
+        switch (pkt.type) {
+            case 'update':
+                this.timestamp = pkt.timestamp
+                this.players = pkt.players
+                const player = this.players.find(
+                    (p) => p.username === this.username
+                )
+                if (!player) {
+                    console.error('Could not find player in update packet')
+                    return
+                }
+                this.pos = Vec(player.pos)
+                this.vel = Vec(player.vel)
+                break
+
+            case 'ping':
+                this.updateLatency(Date.now() - pkt.timestamp)
+                break
+
+            default:
+                console.error(`Unknown packet type: ${pkt.type}`)
+                return
         }
     }
-    onTab(key: string, ev: Event) {
+    onTab(_key: string, ev: Event) {
         if (!this.focused) {
             return
         }
@@ -107,7 +127,7 @@ export default class Game extends Component {
     update(dt: number) {
         this.ping()
         this.move(dt)
-        this.collide()
+        // this.collide()
     }
     draw() {
         const w = this.width
@@ -219,37 +239,38 @@ export default class Game extends Component {
         this.latency = this.pings.reduce((p, c) => p + c) / this.pings.length
     }
     private move(dt: number) {
-        const delta = Vec()
+        const dir = Vec()
         if (this.inputs.isDown('ArrowUp') || this.inputs.isDown('KeyW')) {
-            delta.y -= 1
+            dir.y -= 1
         } else if (
             this.inputs.isDown('ArrowDown') ||
             this.inputs.isDown('KeyS')
         ) {
-            delta.y += 1
+            dir.y += 1
         }
         if (this.inputs.isDown('ArrowLeft') || this.inputs.isDown('KeyA')) {
-            delta.x -= 1
+            dir.x -= 1
         } else if (
             this.inputs.isDown('ArrowRight') ||
             this.inputs.isDown('KeyD')
         ) {
-            delta.x += 1
+            dir.x += 1
         }
 
+        if (!eq(dir, this.lastDir)) {
+            this.conn.send({ type: 'move', x: dir.x, y: dir.y })
+        }
+        this.lastDir = Vec(dir)
+
+        /*
         const currentSpeed = Math.sqrt(
             this.vel.x * this.vel.x + this.vel.y * this.vel.y
         )
 
         // Check if input is given
-        if (!isZero(delta) && this.focused) {
-            // Normalize delta vector if needed
-            if (delta.x !== 0 && delta.y !== 0) {
-                inormalize(delta)
-            }
-
+        if (!isZero(dir) && this.focused) {
             // Update velocity
-            this.vel = mul(delta, currentSpeed + ACC * dt)
+            this.vel = mul(dir, currentSpeed + ACC * dt)
 
             // Limit speed
             const maxSpeed = this.inputs.isDown('ShiftLeft')
@@ -271,6 +292,7 @@ export default class Game extends Component {
             iadd(this.pos, mul(this.vel, dt))
             this.conn.send({ type: 'move', x: this.pos.x, y: this.pos.y })
         }
+        */
     }
     private collide() {
         // Get index range of player bounding box

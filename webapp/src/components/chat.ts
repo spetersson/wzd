@@ -18,7 +18,7 @@ export class Chat extends Component {
     }[] = []
 
     constructor(private conn: Connection) {
-        super()
+        super([])
         this.containerElem = document.getElementById(
             'chat-container'
         ) as HTMLDivElement
@@ -89,9 +89,15 @@ export class Chat extends Component {
             timestamp: Date.now(),
         })
     }
-    receive(pkg: GetPacket) {
-        if (pkg.type === 'message') {
-            this.addMessage(pkg.username, pkg.message)
+    receive(pkt: GetPacket) {
+        switch (pkt.type) {
+            case 'message':
+                this.addMessage(pkt.username, pkt.message)
+                break
+
+            default:
+                console.error(`Unknown packet type: ${pkt.type}`)
+                return
         }
     }
 

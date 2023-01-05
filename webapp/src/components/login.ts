@@ -1,4 +1,5 @@
 import { Component } from '.'
+import { GetPacket } from '../server/packet-get'
 
 export interface LoginResult {
     username: string
@@ -12,7 +13,7 @@ export class Login extends Component {
     private nameField: HTMLInputElement
 
     constructor() {
-        super()
+        super([])
         this.joinContainer = document.getElementById(
             'join-container'
         ) as HTMLDivElement
@@ -24,6 +25,8 @@ export class Login extends Component {
             'name-field'
         ) as HTMLInputElement
     }
+
+    receive(pkg: GetPacket) {}
 
     _focus() {
         this.nameField.focus()

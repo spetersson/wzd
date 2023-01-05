@@ -53,16 +53,20 @@ export class WZDApp {
 
     async loop() {
         const now = Date.now()
-        await this.game.update((now - this.lastTime) / 1000)
-        await this.game.draw()
+        this.game.update((now - this.lastTime) / 1000)
+        this.game.draw()
 
         this.lastTime = now
         requestAnimationFrame(this.loop.bind(this))
     }
 
-    private receive(pkg: GetPacket) {
-        this.game.receive(pkg)
-        this.chat.receive(pkg)
+    private receive(pkt: GetPacket) {
+        const components = [this.game, this.chat, this.login]
+        for (const comp of components) {
+            if (comp.accepts().includes(pkt.type)) {
+                comp.receive(pkt)
+            }
+        }
     }
     private onEnterKey() {
         if (this.inGame) {

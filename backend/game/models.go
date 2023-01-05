@@ -7,10 +7,11 @@ import (
 )
 
 type Player struct {
-	Username string  `json:"username"`
-	Pos      vec.Vec `json:"pos"`
-	Vel      vec.Vec `json:"vel"`
-	Dir      vec.Vec `json:"-"`
+	Username  string  `json:"username"`
+	Pos       vec.Vec `json:"pos"`
+	Vel       vec.Vec `json:"vel"`
+	Dir       vec.Vec `json:"-"`
+	Sprinting bool    `json:"-"`
 }
 
 type Enemy struct {

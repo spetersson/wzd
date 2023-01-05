@@ -4,16 +4,30 @@ export interface Vec {
 }
 
 export function Vec(): Vec
+export function Vec(v: Vec): Vec
+export function Vec(xy: number): Vec
 export function Vec(x: number, y: number): Vec
-export function Vec(x?: unknown, y?: unknown): Vec {
-    return {
-        x: typeof x === 'number' ? x : 0,
-        y: typeof y === 'number' ? y : 0,
+export function Vec(arg1?: number | Vec, arg2?: number): Vec {
+    if (typeof arg1 === 'object') {
+        return {
+            x: arg1.x,
+            y: arg1.y,
+        }
+    } else if (typeof arg1 === 'number') {
+        return {
+            x: arg1,
+            y: arg2 ?? arg1,
+        }
+    } else {
+        return { x: 0, y: 0 }
     }
 }
 
 export function isZero(a: Vec) {
     return a.x === 0 && a.y === 0
+}
+export function eq(a: Vec, b: Vec) {
+    return a.x === b.x && a.y === b.y
 }
 
 export function dot(a: Vec, b: Vec) {

@@ -18,8 +18,8 @@ func (a *Vec) Sub(b Vec) Vec {
 
 func (a *Vec) Mul(s float64) Vec {
 	return Vec{
-		X: a.X + s,
-		Y: a.Y + s,
+		X: a.X * s,
+		Y: a.Y * s,
 	}
 }
 
