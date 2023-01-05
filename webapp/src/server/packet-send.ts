@@ -18,9 +18,16 @@ export interface SendPacketPing {
     type: 'ping'
     timestamp: number
 }
+export interface SendPacketBuild {
+    type: 'build'
+    item: string
+    ix: number
+    iy: number
+}
 
 export type SendPacket =
     | SendPacketJoin
     | SendPacketMove
     | SendPacketChat
     | SendPacketPing
+    | SendPacketBuild

@@ -57,6 +57,22 @@ func (game *Game) receive(client *hub.Client, data dict) {
 		game.players[client].Dir = dir
 		game.players[client].Sprinting = sprinting
 
+	case "build":
+		ix, ok1 := data["ix"].(float64)
+		iy, ok2 := data["iy"].(float64)
+
+		if !ok1 || !ok2 {
+			log.Printf("Failed to parse build packet %v", data)
+			return
+		}
+
+		tile := game.gameMap.At(int(ix), int(iy))
+		if tile.BuildingId != 0 {
+			log.Print("Trying to place building on top of building")
+			return
+		}
+		tile.BuildingId = 1
+
 	case "chat":
 		message, ok := data["message"].(string)
 

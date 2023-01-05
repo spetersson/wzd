@@ -1,3 +1,4 @@
+import Build from './components/build'
 import { Chat } from './components/chat'
 import Connection from './server/connection'
 import Game from './components/game'
@@ -12,6 +13,7 @@ export class WZDApp {
     login: Login
     game: Game
     chat: Chat
+    build: Build
 
     inGame: boolean
 
@@ -27,10 +29,12 @@ export class WZDApp {
         const worldMap = await getWorldMap()
         this.game = new Game(worldMap, this.conn, this.inputs)
         this.chat = new Chat(this.conn)
+        this.build = new Build(this.conn, this.game)
 
         this.login.show()
         this.game.hide()
         this.chat.hide()
+        this.build.hide()
 
         const loginRes = await this.login.login()
         this.chat.init(loginRes.username)
@@ -45,6 +49,8 @@ export class WZDApp {
 
         this.inputs.listenUp('Enter', this.onEnterKey.bind(this))
         this.inputs.listenUp('Escape', this.onEscKey.bind(this))
+
+        this.inputs.listenUp('KeyB', this.onBKey.bind(this))
 
         requestAnimationFrame(this.loop.bind(this))
     }
@@ -69,7 +75,7 @@ export class WZDApp {
             this.chat.focus()
             this.game.unfocus()
             this.inGame = false
-        } else {
+        } else if (this.chat.status === 'show') {
             this.chat.sendMsg()
             this.chat.hide()
             this.game.focus()
@@ -79,8 +85,20 @@ export class WZDApp {
     private onEscKey() {
         if (!this.inGame) {
             this.chat.hide()
+            this.build.hide()
             this.game.focus()
             this.inGame = true
+        }
+    }
+    private onBKey() {
+        if (this.inGame) {
+            this.build.show()
+            this.inGame = false
+            this.game.unfocus()
+        } else if (this.build.status === 'show') {
+            this.build.hide()
+            this.inGame = true
+            this.game.focus()
         }
     }
 }

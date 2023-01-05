@@ -26,8 +26,13 @@ func (eb *EnemyBase) Pos() (x int, y int) {
 type GameMap struct {
 	width      int
 	height     int
-	tiles      [][]bool
+	tiles      [][]Tile
 	enemyBases []EnemyBase
+}
+
+type Tile struct {
+	Walkable   bool
+	BuildingId int
 }
 
 func (gm *GameMap) Width(x, y int) int {
@@ -46,8 +51,8 @@ func (gm *GameMap) EnemyBase(i int) EnemyBase {
 	return gm.enemyBases[i]
 }
 
-func (gm *GameMap) At(x, y int) bool {
-	return gm.tiles[y][x]
+func (gm *GameMap) At(x, y int) *Tile {
+	return &gm.tiles[y][x]
 }
 
 func (gm *GameMap) IsInside(x, y int) bool {
@@ -73,10 +78,10 @@ func GetMap() GameMap {
 
 	width := img.Bounds().Max.X
 	height := img.Bounds().Max.Y
-	tiles := make([][]bool, height)
+	tiles := make([][]Tile, height)
 	enemyBases := make([]EnemyBase, 0)
 	for y := 0; y < height; y++ {
-		tiles[y] = make([]bool, width)
+		tiles[y] = make([]Tile, width)
 		for x := 0; x < width; x++ {
 			col, ok := img.At(x, y).(color.NRGBA)
 			if !ok {
@@ -84,12 +89,12 @@ func GetMap() GameMap {
 			}
 			switch col {
 			case TILE_WATER:
-				tiles[y][x] = false
+				tiles[y][x] = Tile{false, 0}
 			case TILE_ENEMY_BASE:
 				enemyBases = append(enemyBases, EnemyBase{x, y})
-				tiles[y][x] = true
+				tiles[y][x] = Tile{true, 0}
 			case TILE_LAND:
-				tiles[y][x] = true
+				tiles[y][x] = Tile{true, 0}
 			default:
 				log.Fatal("Unknown tile color %w", col)
 			}
