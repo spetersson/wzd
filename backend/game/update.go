@@ -21,8 +21,20 @@ func (game *Game) update() {
 		})
 	}
 
+	buildings := make([]dict, 0)
+	for _, building := range game.gameMap.Buildings() {
+		ix, iy := building.XY()
+		buildings = append(buildings, dict{
+			"id":     building.Id(),
+			"typeId": building.TypeId(),
+			"ix":     ix,
+			"iy":     iy,
+		})
+	}
+
 	game.server.SendAll(dict{
-		"type":    "update",
-		"players": players,
+		"type":      "update",
+		"players":   players,
+		"buildings": buildings,
 	})
 }

@@ -1,3 +1,4 @@
+import { Building } from '../utils/map'
 import { Vec } from '../utils/math'
 
 export interface Player {
@@ -10,6 +11,7 @@ export interface GetPacketUpdate {
     type: 'update'
     timestamp: number
     players: Player[]
+    buildings: Building[]
 }
 export interface GetPacketMessage {
     type: 'message'

@@ -58,20 +58,20 @@ func (game *Game) receive(client *hub.Client, data dict) {
 		game.players[client].Sprinting = sprinting
 
 	case "build":
-		ix, ok1 := data["ix"].(float64)
-		iy, ok2 := data["iy"].(float64)
+		typeId, ok1 := data["typeId"].(float64)
+		ix, ok2 := data["ix"].(float64)
+		iy, ok3 := data["iy"].(float64)
 
-		if !ok1 || !ok2 {
+		if !ok1 || !ok2 || !ok3 {
 			log.Printf("Failed to parse build packet %v", data)
 			return
 		}
 
-		tile := game.gameMap.At(int(ix), int(iy))
-		if tile.BuildingId != 0 {
+		if game.gameMap.At(int(ix), int(iy)).Building() != nil {
 			log.Print("Trying to place building on top of building")
 			return
 		}
-		tile.BuildingId = 1
+		game.gameMap.Place(int(typeId), int(ix), int(iy))
 
 	case "chat":
 		message, ok := data["message"].(string)

@@ -14,25 +14,12 @@ var (
 	TILE_ENEMY_BASE = color.NRGBA{255, 0, 0, 255}
 )
 
-type EnemyBase struct {
-	x int
-	y int
-}
-
-func (eb *EnemyBase) Pos() (x int, y int) {
-	return eb.x, eb.y
-}
-
 type GameMap struct {
-	width      int
-	height     int
-	tiles      [][]Tile
-	enemyBases []EnemyBase
-}
-
-type Tile struct {
-	Walkable   bool
-	BuildingId int
+	width     int
+	height    int
+	tiles     [][]Tile
+	buildings map[int]*Building
+	counter   int
 }
 
 func (gm *GameMap) Width(x, y int) int {
@@ -43,20 +30,32 @@ func (gm *GameMap) Height(x, y int) int {
 	return gm.height
 }
 
-func (gm *GameMap) NumEnemyBases() int {
-	return len(gm.enemyBases)
-}
-
-func (gm *GameMap) EnemyBase(i int) EnemyBase {
-	return gm.enemyBases[i]
-}
-
 func (gm *GameMap) At(x, y int) *Tile {
 	return &gm.tiles[y][x]
 }
 
 func (gm *GameMap) IsInside(x, y int) bool {
 	return x >= 0 && x < gm.width && y >= 0 && y < gm.height
+}
+
+func (gm *GameMap) Buildings() map[int]*Building {
+	return gm.buildings
+}
+
+func (gm *GameMap) Place(typeId, x, y int) *Building {
+	id := gm.counter
+	gm.counter++
+	building := Building{
+		id:     id,
+		typeId: typeId,
+		ix:     x,
+		iy:     y,
+	}
+
+	gm.tiles[y][x].building = &building
+	gm.buildings[id] = &building
+
+	return &building
 }
 
 func GetMap() GameMap {
@@ -79,7 +78,7 @@ func GetMap() GameMap {
 	width := img.Bounds().Max.X
 	height := img.Bounds().Max.Y
 	tiles := make([][]Tile, height)
-	enemyBases := make([]EnemyBase, 0)
+	buildings := make(map[int]*Building)
 	for y := 0; y < height; y++ {
 		tiles[y] = make([]Tile, width)
 		for x := 0; x < width; x++ {
@@ -89,12 +88,11 @@ func GetMap() GameMap {
 			}
 			switch col {
 			case TILE_WATER:
-				tiles[y][x] = Tile{false, 0}
+				tiles[y][x] = Tile{false, nil}
 			case TILE_ENEMY_BASE:
-				enemyBases = append(enemyBases, EnemyBase{x, y})
-				tiles[y][x] = Tile{true, 0}
+				tiles[y][x] = Tile{true, nil}
 			case TILE_LAND:
-				tiles[y][x] = Tile{true, 0}
+				tiles[y][x] = Tile{true, nil}
 			default:
 				log.Fatal("Unknown tile color %w", col)
 			}
@@ -102,9 +100,10 @@ func GetMap() GameMap {
 	}
 
 	return GameMap{
-		width,
-		height,
-		tiles,
-		enemyBases,
+		width:     width,
+		height:    height,
+		tiles:     tiles,
+		buildings: buildings,
+		counter:   0,
 	}
 }

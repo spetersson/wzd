@@ -20,7 +20,7 @@ export interface SendPacketPing {
 }
 export interface SendPacketBuild {
     type: 'build'
-    item: string
+    typeId: number
     ix: number
     iy: number
 }

@@ -107,6 +107,22 @@ export default class Game extends Component {
                 }
                 this.pos = Vec(player.pos)
                 this.vel = Vec(player.vel)
+
+                for (const id in this.map.buildings) {
+                    const oldBuilding = this.map.buildings[id]
+                    this.map.data[oldBuilding.iy][oldBuilding.ix].building =
+                        null
+                }
+                this.map.buildings = pkt.buildings.reduce(
+                    (p, c) => ({ ...p, [c.id]: c }),
+                    {}
+                )
+                for (const id in this.map.buildings) {
+                    const newBuilding = this.map.buildings[id]
+                    this.map.data[newBuilding.iy][newBuilding.ix].building =
+                        newBuilding
+                }
+
                 this.timestamp = Date.now()
                 break
 
@@ -127,10 +143,12 @@ export default class Game extends Component {
         this.debug = !this.debug
     }
     update() {
-        const dt = (Date.now() - this.timestamp) / 1000
+        const now = Date.now()
+        const dt = (now - this.timestamp) / 1000
         this.ping()
         this.move(dt)
         // this.collide()
+        this.timestamp = now
     }
     draw() {
         const w = this.width
@@ -168,14 +186,31 @@ export default class Game extends Component {
                 ) {
                     continue
                 }
-                const isLand = this.map.data[iy][ix]
-                if (isLand) {
+                const tile = this.map.data[iy][ix]
+                if (tile.walkable) {
                     gc.fillStyle = '#4C6'
                 } else {
                     gc.fillStyle = '#46C'
                 }
                 const { x, y } = idxToScreen(Vec(ix, iy))
                 gc.fillRect(x - 1, y - 1, tileW + 2, tileW + 2)
+
+                if (tile.building) {
+                    gc.fillStyle = '#666'
+                    gc.fillRect(
+                        x + tileW * 0.05,
+                        y + tileW * 0.05,
+                        tileW * 0.9,
+                        tileW * 0.9
+                    )
+                    gc.fillStyle = '#333'
+                    gc.fillRect(
+                        x + tileW * 0.15,
+                        y + tileW * 0.15,
+                        tileW * 0.7,
+                        tileW * 0.7
+                    )
+                }
             }
         }
 
@@ -309,7 +344,7 @@ export default class Game extends Component {
         for (let ix = minI.x; ix <= maxI.x; ix++) {
             for (let iy = minI.y; iy <= maxI.y; iy++) {
                 // Check if block is land
-                if (this.map.data[iy][ix]) {
+                if (this.map.data[iy][ix].walkable) {
                     continue
                 }
                 const delta = sub(this.pos, Vec(ix + 0.5, iy + 0.5))

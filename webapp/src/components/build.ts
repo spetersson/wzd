@@ -35,7 +35,7 @@ export default class Build extends Component {
 
         console.log(`Placing ${item} at (${ix},${iy})`)
 
-        this.conn.send({ type: 'build', item, ix, iy })
+        this.conn.send({ type: 'build', typeId: 1, ix, iy })
     }
 
     _focus() {}
