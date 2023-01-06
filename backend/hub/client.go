@@ -1,12 +1,12 @@
 package hub
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
@@ -21,10 +21,6 @@ const (
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
-)
-
-var (
-	newline = []byte{'\n'}
 )
 
 var upgrader = websocket.Upgrader{
@@ -42,12 +38,12 @@ type Client struct {
 
 func (hub *Hub) readPump(c *Client) {
 	defer func() {
-		hub.unregister <- c
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	c.conn.SetCloseHandler(func(int, string) error { hub.unregister <- c; return nil })
 	for {
 		_, data, err := c.conn.ReadMessage()
 		if err != nil {
@@ -55,7 +51,7 @@ func (hub *Hub) readPump(c *Client) {
 		}
 
 		packet := make(map[string]any)
-		err = json.Unmarshal(data, &packet)
+		err = bson.Unmarshal(data, &packet)
 		if err != nil {
 			log.Printf("Unable to marshal packet: %s", string(data))
 			continue
@@ -80,7 +76,7 @@ func (hub *Hub) writePump(c *Client) {
 				return
 			}
 
-			w, err := c.conn.NextWriter(websocket.TextMessage)
+			w, err := c.conn.NextWriter(websocket.BinaryMessage)
 			if err != nil {
 				return
 			}
@@ -89,7 +85,6 @@ func (hub *Hub) writePump(c *Client) {
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
-				w.Write(newline)
 				w.Write(<-c.send)
 			}
 

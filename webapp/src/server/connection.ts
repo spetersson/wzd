@@ -1,5 +1,6 @@
 import { GetPacket } from './packet-get'
 import { SendPacket } from './packet-send'
+import * as bson from 'bson'
 
 export default class Connection {
     private conn: WebSocket
@@ -14,6 +15,7 @@ export default class Connection {
             }
 
             this.conn = new WebSocket(`ws://${path}/ws`)
+            this.conn.binaryType = 'arraybuffer'
             this.conn.onerror = () => {
                 this.conn = null
                 reject(new Error('Failed to connect'))
@@ -34,32 +36,27 @@ export default class Connection {
         if (!this.conn) {
             throw new Error(`Can't send, not connected`)
         }
-        this.conn.send(JSON.stringify(data))
+        this.conn.send(bson.serialize(data))
     }
 
     private async onmessage(ev: MessageEvent) {
-        // Split message into packets if needed
-        let packetsRaw: string[]
-        try {
-            if (typeof ev.data !== 'string') {
-                throw new Error(
-                    `Expected data to be a string, got ${typeof ev.data}`
-                )
-            }
-            packetsRaw = ev.data
-                .split('\n')
-                .map((p) => p.trim())
-                .filter((p) => Boolean(p))
-        } catch (err) {
-            console.error(err)
-            console.error(`Failed to parse message: '${String(ev.data)}'`)
+        if (!(ev.data instanceof ArrayBuffer)) {
+            console.error(`Message data is not a ArrayByffer:`, ev.data)
             return
         }
 
-        // Handle each packet
-        for (const packetRaw of packetsRaw) {
+        let i = 0
+        while (i < ev.data.byteLength) {
             try {
-                const packet = JSON.parse(packetRaw)
+                const len = new Int32Array(ev.data.slice(i, i + 4))[0]
+                if (i + len > ev.data.byteLength) {
+                    throw new Error(`Invalid BSON object`)
+                }
+
+                const packet = bson.deserialize(ev.data, {
+                    allowObjectSmallerThanBufferSize: true,
+                    index: i,
+                }) as GetPacket
                 if (typeof packet !== 'object') {
                     throw new Error('Packet was not a object')
                 }
@@ -67,9 +64,11 @@ export default class Connection {
                     throw new Error('Packet did not have a type field')
                 }
                 this.receive(packet)
+
+                i += len
             } catch (err) {
                 console.error(err)
-                console.error(`Failed to parse packet: '${packetRaw}'`)
+                console.error(`Failed to parse packet: '${ev.data}'`)
                 return
             }
         }

@@ -16,9 +16,21 @@ const (
 )
 
 func (game *Game) loop(dt float64) {
+	// Move players
+	allPlayers := make([]*Player, 0)
 	for _, player := range game.players {
+		allPlayers = append(allPlayers, player)
 		game.movePlayer(player, dt)
-		game.collidePlayer(player)
+	}
+	// Collide players with other players
+	for i := 0; i < len(allPlayers); i++ {
+		for j := i + 1; j < len(allPlayers); j++ {
+			game.collidePlayerPlayer(allPlayers[i], allPlayers[j])
+		}
+	}
+	// Collide players with environment
+	for _, player := range game.players {
+		game.collidePlayerTiles(player)
 	}
 }
 
@@ -54,6 +66,46 @@ func (game *Game) movePlayer(player *Player, dt float64) {
 
 }
 
-func (game *Game) collidePlayer(player *Player) {
+func (game *Game) collidePlayerTiles(player *Player) {
+	// Get index range of player bounding box
+	minIX := int(math.Floor(player.Pos.X - PLAYER_RAD))
+	minIY := int(math.Floor(player.Pos.Y - PLAYER_RAD))
 
+	maxIX := int(math.Floor(player.Pos.X + PLAYER_RAD))
+	maxIY := int(math.Floor(player.Pos.Y + PLAYER_RAD))
+
+	// Check all blocks in index range
+	for ix := minIX; ix <= maxIX; ix++ {
+		for iy := minIY; iy <= maxIY; iy++ {
+			// Check if block is land
+			if !game.gameMap.IsInside(ix, iy) {
+				continue
+			}
+
+			tile := game.gameMap.At(ix, iy)
+			var bb *BB = nil
+			if !tile.Walkable() {
+				// Collide with entire tile
+				bb = &BB{
+					Left:   float64(ix),
+					Right:  float64(ix + 1),
+					Top:    float64(iy),
+					Bottom: float64(iy + 1),
+				}
+			} else if tile.Building() != nil {
+				// Collide with building on tile
+				diff := (1 - tile.Building().Type().Size()) * 0.5
+				bb = &BB{
+					Left:   float64(ix) + diff,
+					Right:  float64(ix) + 1 - diff,
+					Top:    float64(iy) + diff,
+					Bottom: float64(iy) + 1 - diff,
+				}
+			} else {
+				continue
+			}
+
+			collidePlayerBB(player, *bb)
+		}
+	}
 }

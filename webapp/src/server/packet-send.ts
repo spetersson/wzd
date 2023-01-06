@@ -1,13 +1,14 @@
-import { Vec } from '../utils/math'
+import { VecDouble, VecInt32 } from './types'
+import * as bson from 'bson'
 
 export interface SendPacketJoin {
     type: 'join'
     username: string
-    pos: Vec
+    pos: VecDouble
 }
 export interface SendPacketMove {
     type: 'move'
-    dir: Vec
+    dir: VecDouble
     sprinting: boolean
 }
 export interface SendPacketChat {
@@ -15,14 +16,13 @@ export interface SendPacketChat {
     message: string
 }
 export interface SendPacketPing {
-    type: 'ping'
+    type: 'pong'
     timestamp: number
 }
 export interface SendPacketBuild {
     type: 'build'
-    typeId: number
-    ix: number
-    iy: number
+    typeId: bson.Int32
+    idx: VecInt32
 }
 
 export type SendPacket =

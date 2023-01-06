@@ -9,6 +9,6 @@ func NewVec(x, y float64) Vec {
 	return Vec{X: x, Y: y}
 }
 
-func (v *Vec) IsZero() bool {
+func (v Vec) IsZero() bool {
 	return v.X == 0 && v.Y == 0
 }

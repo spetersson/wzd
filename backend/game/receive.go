@@ -5,6 +5,7 @@ import (
 
 	"github.com/spetersson/wzd/backend/hub"
 	"github.com/spetersson/wzd/backend/vec"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (game *Game) receive(client *hub.Client, data dict) {
@@ -58,11 +59,15 @@ func (game *Game) receive(client *hub.Client, data dict) {
 		game.players[client].Sprinting = sprinting
 
 	case "build":
-		typeId, ok1 := data["typeId"].(float64)
-		ix, ok2 := data["ix"].(float64)
-		iy, ok3 := data["iy"].(float64)
-
-		if !ok1 || !ok2 || !ok3 {
+		typeId, ok1 := data["typeId"].(int32)
+		idx, ok2 := data["idx"].(dict)
+		if !ok1 || !ok2 {
+			log.Printf("Failed to parse build packet %v", data)
+			return
+		}
+		ix, ok3 := idx["x"].(int32)
+		iy, ok4 := idx["y"].(int32)
+		if !ok3 || !ok4 {
 			log.Printf("Failed to parse build packet %v", data)
 			return
 		}
@@ -82,12 +87,11 @@ func (game *Game) receive(client *hub.Client, data dict) {
 
 		log.Printf("Player " + game.players[client].Username + " wrote: " + message)
 
-		packet := make(dict)
-		packet["type"] = "message"
-		packet["username"] = game.players[client].Username
-		packet["message"] = message
-
-		game.server.SendAll(packet)
+		game.server.SendAll(bson.M{
+			"type":     "message",
+			"username": game.players[client].Username,
+			"message":  message,
+		})
 
 	case "ping":
 		timestamp, ok := data["timestamp"].(float64)
@@ -95,8 +99,8 @@ func (game *Game) receive(client *hub.Client, data dict) {
 			log.Printf("Failed to parse ping packet %v", data)
 			return
 		}
-		game.server.SendTo(client, dict{
-			"type":      "ping",
+		game.server.SendTo(client, bson.M{
+			"type":      "pong",
 			"timestamp": timestamp,
 		})
 

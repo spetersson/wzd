@@ -1,9 +1,11 @@
 import { Component } from '.'
 import Connection from '../server/connection'
 import { GetPacket } from '../server/packet-get'
+import { toInt32 } from '../server/types'
+import { BuildingType } from '../utils/map'
+import { Vec } from '../utils/math'
 import Game from './game'
 
-const ITEMS = ['TURRET']
 export default class Build extends Component {
     buildContainer: HTMLDivElement
     gridContainer: HTMLDivElement
@@ -17,25 +19,30 @@ export default class Build extends Component {
             'grid-container'
         ) as HTMLDivElement
 
-        const elements = ITEMS.map((item) => {
+        for (const typeId in this.game.map.buildingTypes) {
+            const buildingType = this.game.map.buildingTypes[typeId]
             const element = document.createElement('div')
-            element.textContent = item
+            element.textContent = buildingType.name.toUpperCase()
             element.onclick = () => {
-                this.onSelectItem(item)
+                this.onSelectItem(buildingType)
             }
-            return element
-        })
-
-        this.gridContainer.append(...elements)
+            this.gridContainer.appendChild(element)
+        }
     }
 
-    onSelectItem(item: string) {
-        const ix = Math.floor(this.game.pos.x)
-        const iy = Math.floor(this.game.pos.y)
+    onSelectItem(type: BuildingType) {
+        const ix = Math.floor(this.game.user.pos.x)
+        const iy = Math.floor(this.game.user.pos.y)
 
-        console.log(`Placing ${item} at (${ix},${iy})`)
+        console.log(
+            `Placing ${type.name} of type ${type.typeId} at (${ix},${iy})`
+        )
 
-        this.conn.send({ type: 'build', typeId: 1, ix, iy })
+        this.conn.send({
+            type: 'build',
+            typeId: toInt32(type.typeId),
+            idx: toInt32(Vec(ix, iy)),
+        })
     }
 
     _focus() {}

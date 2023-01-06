@@ -5,6 +5,7 @@ export interface Player {
     username: string
     pos: Vec
     vel: Vec
+    dir: Vec
 }
 
 export interface GetPacketUpdate {
@@ -19,7 +20,7 @@ export interface GetPacketMessage {
     message: string
 }
 export interface GetPacketPing {
-    type: 'ping'
+    type: 'pong'
     timestamp: number
 }
 

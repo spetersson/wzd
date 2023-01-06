@@ -1,8 +1,9 @@
 import worldMapUrl from '../assets/world.map.png'
 
-export interface Tile {
-    walkable: boolean
-    building: Building | null
+export interface BuildingType {
+    name: string
+    typeId: number
+    size: number
 }
 
 export interface Building {
@@ -12,11 +13,22 @@ export interface Building {
     iy: number
 }
 
+export interface Tile {
+    walkable: boolean
+    building: Building | null
+}
+
 export interface MapData {
     width: number
     height: number
     data: Tile[][]
     buildings: Record<number, Building>
+    buildingTypes: Record<number, BuildingType>
+}
+
+const buildingTypes: Record<number, BuildingType> = {
+    1: { name: 'Wall', typeId: 1, size: 0.8 },
+    2: { name: 'Turret', typeId: 2, size: 0.8 },
 }
 
 export async function getWorldMap() {
@@ -34,6 +46,7 @@ export async function getWorldMap() {
                 height: canvas.height,
                 data: [],
                 buildings: {},
+                buildingTypes,
             }
             for (let y = 0; y < map.height; y++) {
                 const row: Tile[] = []

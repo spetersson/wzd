@@ -50,7 +50,7 @@ export class WZDApp {
         this.inputs.listenUp('Enter', this.onEnterKey.bind(this))
         this.inputs.listenUp('Escape', this.onEscKey.bind(this))
 
-        this.inputs.listenUp('KeyB', this.onBKey.bind(this))
+        this.inputs.listenUp('KeyE', this.onEKey.bind(this))
 
         requestAnimationFrame(this.loop.bind(this))
     }
@@ -90,7 +90,7 @@ export class WZDApp {
             this.inGame = true
         }
     }
-    private onBKey() {
+    private onEKey() {
         if (this.inGame) {
             this.build.show()
             this.inGame = false

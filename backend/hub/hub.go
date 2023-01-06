@@ -1,10 +1,11 @@
 package hub
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
@@ -76,8 +77,8 @@ func (hub *Hub) Receiver() chan *Packet {
 	return hub.receiver
 }
 
-func (hub *Hub) SendAll(packet map[string]any) {
-	data, err := json.Marshal(packet)
+func (hub *Hub) SendAll(packet bson.M) {
+	data, err := bson.Marshal(packet)
 	if err != nil {
 		log.Printf("Unable to marshal packet: %v", packet)
 		return
@@ -86,8 +87,8 @@ func (hub *Hub) SendAll(packet map[string]any) {
 	hub.broadcast <- data
 }
 
-func (hub *Hub) SendTo(client *Client, packet map[string]any) {
-	data, err := json.Marshal(packet)
+func (hub *Hub) SendTo(client *Client, packet bson.M) {
+	data, err := bson.Marshal(packet)
 	if err != nil {
 		log.Printf("Unable to marshal packet: %v", packet)
 		return
