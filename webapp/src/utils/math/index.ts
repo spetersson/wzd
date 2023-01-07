@@ -1,2 +1,2 @@
-export * from './vec'
 export * from './bb'
+export * from './vec'

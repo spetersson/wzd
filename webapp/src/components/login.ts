@@ -1,5 +1,6 @@
+import { GetPacket } from '@/server/packet-get'
+
 import { Component } from '.'
-import { GetPacket } from '../server/packet-get'
 
 export interface LoginResult {
     username: string
@@ -14,16 +15,10 @@ export class Login extends Component {
 
     constructor() {
         super([])
-        this.joinContainer = document.getElementById(
-            'join-container'
-        ) as HTMLDivElement
+        this.joinContainer = document.getElementById('join-container') as HTMLDivElement
         this.joinForm = document.getElementById('join-form') as HTMLFormElement
-        this.hostField = document.getElementById(
-            'host-field'
-        ) as HTMLInputElement
-        this.nameField = document.getElementById(
-            'name-field'
-        ) as HTMLInputElement
+        this.hostField = document.getElementById('host-field') as HTMLInputElement
+        this.nameField = document.getElementById('name-field') as HTMLInputElement
     }
 
     receive(pkg: GetPacket) {}

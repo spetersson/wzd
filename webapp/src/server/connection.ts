@@ -1,11 +1,32 @@
-import { GetPacket } from './packet-get'
-import { SendPacket } from './packet-send'
 import * as bson from 'bson'
+
+import { GetPacket } from '@/server/packet-get'
+import { SendPacket } from '@/server/packet-send'
+
+interface ConnectionStats {
+    sumReceive: number
+    sumReceiveHist: number[]
+    receivePerSecond: number
+    sumSend: number
+    sumSendHist: number[]
+    sendPerSecond: number
+}
 
 export default class Connection {
     private conn: WebSocket
+    private stats: ConnectionStats
 
-    constructor(private receive: (data: GetPacket) => void) {}
+    constructor(private receive: (data: GetPacket) => void) {
+        this.stats = {
+            sumReceive: 0,
+            sumReceiveHist: [],
+            receivePerSecond: 0,
+            sumSend: 0,
+            sumSendHist: [],
+            sendPerSecond: 0,
+        }
+        setInterval(() => this.statsTick(), 1000)
+    }
 
     async connect(path: string) {
         return new Promise<void>((resolve, reject) => {
@@ -32,11 +53,20 @@ export default class Connection {
         })
     }
 
-    send(data: SendPacket) {
+    send(pkt: SendPacket) {
         if (!this.conn) {
             throw new Error(`Can't send, not connected`)
         }
-        this.conn.send(bson.serialize(data))
+        const data = bson.serialize(pkt)
+        this.stats.sumSend += data.byteLength
+        this.conn.send(data)
+    }
+
+    getStats() {
+        return {
+            receivePerSecond: this.stats.receivePerSecond,
+            sendPerSecond: this.stats.sendPerSecond,
+        }
     }
 
     private async onmessage(ev: MessageEvent) {
@@ -44,6 +74,8 @@ export default class Connection {
             console.error(`Message data is not a ArrayByffer:`, ev.data)
             return
         }
+
+        this.stats.sumReceive += ev.data.byteLength
 
         let i = 0
         while (i < ev.data.byteLength) {
@@ -75,5 +107,21 @@ export default class Connection {
     }
     private async onerror(ev: Event) {
         console.error(ev)
+    }
+
+    private statsTick() {
+        // Add current sum to history
+        this.stats.sumReceiveHist.unshift(this.stats.sumReceive)
+        this.stats.sumReceiveHist.splice(5)
+        this.stats.sumReceive = 0
+        // Calculate avg data receive rate per second
+        this.stats.receivePerSecond =
+            this.stats.sumReceiveHist.reduce((p, c) => p + c) / this.stats.sumReceiveHist.length
+
+        // Same for send
+        this.stats.sumSendHist.unshift(this.stats.sumSend)
+        this.stats.sumSendHist.splice(5)
+        this.stats.sumSend = 0
+        this.stats.sendPerSecond = this.stats.sumReceiveHist.reduce((p, c) => p + c) / this.stats.sumSendHist.length
     }
 }

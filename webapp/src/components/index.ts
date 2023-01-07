@@ -1,4 +1,4 @@
-import { GetPacket } from '../server/packet-get'
+import { GetPacket } from '@/server/packet-get'
 
 export abstract class Component {
     constructor(private acceptPktTypes: GetPacket['type'][]) {}

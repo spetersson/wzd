@@ -1,6 +1,7 @@
+import Connection from '@/server/connection'
+import { GetPacket } from '@/server/packet-get'
+
 import { Component } from '.'
-import Connection from '../server/connection'
-import { GetPacket } from '../server/packet-get'
 
 const PERSISTENCE_TIME = 10 * 1000 // 10 sec
 
@@ -19,21 +20,11 @@ export class Chat extends Component {
 
     constructor(private conn: Connection) {
         super([])
-        this.containerElem = document.getElementById(
-            'chat-container'
-        ) as HTMLDivElement
-        this.messagesElem = document.getElementById(
-            'chat-messages'
-        ) as HTMLDivElement
-        this.textboxElem = document.getElementById(
-            'chat-textbox'
-        ) as HTMLDivElement
-        this.chatPlayerUsername = document.getElementById(
-            'chat-player-username'
-        ) as HTMLSpanElement
-        this.chatInput = document.getElementById(
-            'chat-input'
-        ) as HTMLInputElement
+        this.containerElem = document.getElementById('chat-container') as HTMLDivElement
+        this.messagesElem = document.getElementById('chat-messages') as HTMLDivElement
+        this.textboxElem = document.getElementById('chat-textbox') as HTMLDivElement
+        this.chatPlayerUsername = document.getElementById('chat-player-username') as HTMLSpanElement
+        this.chatInput = document.getElementById('chat-input') as HTMLInputElement
 
         this.chatPlayerUsername.textContent = '-'
 

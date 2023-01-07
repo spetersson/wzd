@@ -1,11 +1,11 @@
-import Build from './components/build'
-import { Chat } from './components/chat'
-import Connection from './server/connection'
-import Game from './components/game'
-import { Login } from './components/login'
-import { getWorldMap } from './utils/map'
-import Inputs from './utils/inputs'
-import { GetPacket } from './server/packet-get'
+import Build from '@/components/build'
+import { Chat } from '@/components/chat'
+import Game from '@/components/game'
+import { Login } from '@/components/login'
+import Connection from '@/server/connection'
+import { GetPacket } from '@/server/packet-get'
+import Inputs from '@/utils/inputs'
+import { getWorldMap } from '@/utils/map'
 
 export class WZDApp {
     inputs: Inputs

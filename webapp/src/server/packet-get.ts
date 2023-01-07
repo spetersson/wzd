@@ -1,11 +1,12 @@
-import { Building } from '../utils/map'
-import { Vec } from '../utils/math'
+import { Building } from '@/utils/map'
+import { Vec } from '@/utils/math'
 
 export interface Player {
     username: string
     pos: Vec
     vel: Vec
     dir: Vec
+    sprinting: boolean
 }
 
 export interface GetPacketUpdate {

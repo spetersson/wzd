@@ -1,5 +1,6 @@
 import * as bson from 'bson'
-import { Vec } from '../utils/math'
+
+import { Vec } from '@/utils/math'
 
 export interface VecDouble {
     x: bson.Double

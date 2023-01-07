@@ -1,5 +1,5 @@
-import { VecDouble, VecInt32 } from './types'
 import * as bson from 'bson'
+import { VecDouble, VecInt32 } from '@/server/types'
 
 export interface SendPacketJoin {
     type: 'join'
@@ -16,7 +16,7 @@ export interface SendPacketChat {
     message: string
 }
 export interface SendPacketPing {
-    type: 'pong'
+    type: 'ping'
     timestamp: number
 }
 export interface SendPacketBuild {
@@ -25,9 +25,4 @@ export interface SendPacketBuild {
     idx: VecInt32
 }
 
-export type SendPacket =
-    | SendPacketJoin
-    | SendPacketMove
-    | SendPacketChat
-    | SendPacketPing
-    | SendPacketBuild
+export type SendPacket = SendPacketJoin | SendPacketMove | SendPacketChat | SendPacketPing | SendPacketBuild

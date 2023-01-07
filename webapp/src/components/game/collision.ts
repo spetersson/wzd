@@ -1,30 +1,12 @@
-import { Constants } from '../constants'
-import { Player } from '../server/packet-get'
-import { MapData } from './map'
-import {
-    add,
-    BB,
-    dot,
-    iadd,
-    inormalize,
-    isZero,
-    mag,
-    mul,
-    normalized,
-    sub,
-    Vec,
-} from './math'
+import { Consts } from '@/constants'
+import { Player } from '@/server/packet-get'
+import { MapData } from '@/utils/map'
+import { add, BB, dot, iadd, inormalize, isZero, mag, mul, normalized, sub, Vec } from '@/utils/math'
 
 export function collidePlayerTiles(p: Player, map: MapData) {
     // Get index range of player bounding box
-    const minI = Vec(
-        Math.floor(p.pos.x - Constants.PLAYER_RAD),
-        Math.floor(p.pos.y - Constants.PLAYER_RAD)
-    )
-    const maxI = Vec(
-        Math.floor(p.pos.x + Constants.PLAYER_RAD),
-        Math.floor(p.pos.x + Constants.PLAYER_RAD)
-    )
+    const minI = Vec(Math.floor(p.pos.x - Consts.PLAYER_RAD), Math.floor(p.pos.y - Consts.PLAYER_RAD))
+    const maxI = Vec(Math.floor(p.pos.x + Consts.PLAYER_RAD), Math.floor(p.pos.x + Consts.PLAYER_RAD))
 
     // Check all blocks in index range
     for (let ix = minI.x; ix <= maxI.x; ix++) {
@@ -33,7 +15,7 @@ export function collidePlayerTiles(p: Player, map: MapData) {
                 continue
             }
 
-            const tile = map.data[iy][ix]
+            const tile = map.tiles[iy][ix]
             let bb: BB = null
             // Check if block is land
             if (!tile.walkable) {
@@ -91,16 +73,16 @@ export function collidePlayerBB(p: Player, bb: BB) {
     // scalar is the distance from the block to the player
 
     // Check if player is inside block
-    if (scalar < Constants.PLAYER_RAD) {
+    if (scalar < Consts.PLAYER_RAD) {
         // Distance needed to move out of the block
-        const dist = Constants.PLAYER_RAD - scalar
+        const dist = Consts.PLAYER_RAD - scalar
         iadd(p.pos, mul(lineNorm, dist))
     }
 }
 
 export function collidePlayerPlayer(pA: Player, pB: Player) {
     const delta = sub(pB.pos, pA.pos)
-    const overlap = 2 * Constants.PLAYER_RAD - mag(delta)
+    const overlap = 2 * Consts.PLAYER_RAD - mag(delta)
 
     // Check if they are colliding
     if (overlap < 0) {
@@ -124,8 +106,8 @@ export function collidePlayerPlayer(pA: Player, pB: Player) {
     // Move players
     if (isZero(delta)) {
         // In case players are exactly on top of each other
-        pA.pos.y -= Constants.PLAYER_RAD * 0.5
-        pB.pos.y += Constants.PLAYER_RAD * 0.5
+        pA.pos.y -= Consts.PLAYER_RAD * 0.5
+        pB.pos.y += Consts.PLAYER_RAD * 0.5
     } else {
         const deltaNorm = normalized(delta)
         iadd(pA.pos, mul(deltaNorm, -overlap * weightA))

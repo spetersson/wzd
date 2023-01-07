@@ -1,10 +1,11 @@
+import Game from '@/components/game'
+import Connection from '@/server/connection'
+import { GetPacket } from '@/server/packet-get'
+import { toInt32 } from '@/server/types'
+import { BuildingType } from '@/utils/map'
+import { Vec } from '@/utils/math'
+
 import { Component } from '.'
-import Connection from '../server/connection'
-import { GetPacket } from '../server/packet-get'
-import { toInt32 } from '../server/types'
-import { BuildingType } from '../utils/map'
-import { Vec } from '../utils/math'
-import Game from './game'
 
 export default class Build extends Component {
     buildContainer: HTMLDivElement
@@ -12,12 +13,8 @@ export default class Build extends Component {
 
     constructor(private conn: Connection, private game: Game) {
         super([])
-        this.buildContainer = document.getElementById(
-            'build-container'
-        ) as HTMLDivElement
-        this.gridContainer = document.getElementById(
-            'grid-container'
-        ) as HTMLDivElement
+        this.buildContainer = document.getElementById('build-container') as HTMLDivElement
+        this.gridContainer = document.getElementById('grid-container') as HTMLDivElement
 
         for (const typeId in this.game.map.buildingTypes) {
             const buildingType = this.game.map.buildingTypes[typeId]
@@ -34,9 +31,7 @@ export default class Build extends Component {
         const ix = Math.floor(this.game.user.pos.x)
         const iy = Math.floor(this.game.user.pos.y)
 
-        console.log(
-            `Placing ${type.name} of type ${type.typeId} at (${ix},${iy})`
-        )
+        console.log(`Placing ${type.name} of type ${type.typeId} at (${ix},${iy})`)
 
         this.conn.send({
             type: 'build',

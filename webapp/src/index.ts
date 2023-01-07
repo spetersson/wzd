@@ -1,4 +1,4 @@
-import { WZDApp } from './app'
+import { WZDApp } from '@/app'
 
 window.onload = async () => {
     try {
