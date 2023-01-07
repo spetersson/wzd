@@ -26,7 +26,7 @@ export function collidePlayerTiles(p: Player, map: MapData) {
                     bottom: iy + 1,
                 }
             } else if (tile.building) {
-                const type = map.buildingTypes[tile.building.typeId]
+                const type = Consts.BUILDING_TYPES[tile.building.typeId]
                 const diff = (1 - type.size) * 0.5
                 bb = {
                     left: ix + diff,

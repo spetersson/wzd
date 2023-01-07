@@ -1,20 +1,21 @@
 package game_map
 
-func (gm *GameMap) Compress() map[string]any {
-	result := make(map[string]any)
-	result["width"] = gm.width
-	result["height"] = gm.height
-
-	tilesStr := ""
-	for _, row := range gm.tiles {
-		for _, tile := range row {
-			if tile.Walkable() {
-				tilesStr += "X"
+func (gm *GameMap) ToBytes() []byte {
+	size := gm.width * gm.height
+	result := make([]byte, size)
+	i := 0
+	for y := 0; y < gm.height; y++ {
+		for x := 0; x < gm.width; x++ {
+			var value byte
+			if gm.tiles[y][x].walkable {
+				value = 1
 			} else {
-				tilesStr += " "
+				value = 0
 			}
+			result[i] = value
+			i++
 		}
 	}
-	result["tiles"] = tilesStr
+
 	return result
 }

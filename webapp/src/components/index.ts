@@ -9,7 +9,7 @@ export abstract class Component {
     protected abstract _unfocus(): void
     protected abstract _show(): void
     protected abstract _hide(): void
-    abstract receive(pkg: GetPacket): void
+    abstract receive(pkg: GetPacket): void | Promise<void>
 
     focus() {
         this._focus()

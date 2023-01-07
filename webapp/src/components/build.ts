@@ -1,4 +1,5 @@
 import Game from '@/components/game'
+import { Consts } from '@/constants'
 import Connection from '@/server/connection'
 import { GetPacket } from '@/server/packet-get'
 import { toInt32 } from '@/server/types'
@@ -16,8 +17,8 @@ export default class Build extends Component {
         this.buildContainer = document.getElementById('build-container') as HTMLDivElement
         this.gridContainer = document.getElementById('grid-container') as HTMLDivElement
 
-        for (const typeId in this.game.map.buildingTypes) {
-            const buildingType = this.game.map.buildingTypes[typeId]
+        for (const typeId in Consts.BUILDING_TYPES) {
+            const buildingType = Consts.BUILDING_TYPES[typeId]
             const element = document.createElement('div')
             element.textContent = buildingType.name.toUpperCase()
             element.onclick = () => {

@@ -122,6 +122,6 @@ export default class Connection {
         this.stats.sumSendHist.unshift(this.stats.sumSend)
         this.stats.sumSendHist.splice(5)
         this.stats.sumSend = 0
-        this.stats.sendPerSecond = this.stats.sumReceiveHist.reduce((p, c) => p + c) / this.stats.sumSendHist.length
+        this.stats.sendPerSecond = this.stats.sumSendHist.reduce((p, c) => p + c) / this.stats.sumSendHist.length
     }
 }

@@ -1,3 +1,5 @@
+import * as bson from 'bson'
+
 import { Building } from '@/utils/map'
 import { Vec } from '@/utils/math'
 
@@ -24,5 +26,11 @@ export interface GetPacketPing {
     type: 'pong'
     timestamp: number
 }
+export interface GetPacketMap {
+    type: 'map'
+    width: number
+    height: number
+    bytes: bson.Binary
+}
 
-export type GetPacket = GetPacketUpdate | GetPacketMessage | GetPacketPing
+export type GetPacket = GetPacketUpdate | GetPacketMessage | GetPacketPing | GetPacketMap

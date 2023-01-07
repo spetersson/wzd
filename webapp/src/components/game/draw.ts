@@ -2,7 +2,27 @@ import { Consts } from '@/constants'
 import { Player } from '@/server/packet-get'
 import { isWholeTile, MapData } from '@/utils/map'
 import { Vec } from '@/utils/math'
+
 import { Camera } from './camera'
+
+export function drawLoading(gc: CanvasRenderingContext2D) {
+    gc.fillStyle = '#AAA'
+    gc.fillRect(0, 0, gc.canvas.width, gc.canvas.height)
+
+    const mX = gc.canvas.width * 0.5
+    const mY = gc.canvas.height * 0.5
+
+    const msg = 'Loading...'
+    gc.font = 'bold 40px Arial'
+    const metrics = gc.measureText(msg)
+
+    gc.fillStyle = '#000'
+    gc.fillText(
+        msg,
+        mX - (metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft) * 0.5,
+        mY - (metrics.actualBoundingBoxDescent - metrics.actualBoundingBoxAscent) * 0.5
+    )
+}
 
 export function drawMap(gc: CanvasRenderingContext2D, cam: Camera, map: MapData) {
     const worldIdxBB = cam.getWorldIdxBB()
@@ -68,23 +88,29 @@ export function drawUser(gc: CanvasRenderingContext2D, cam: Camera, p: Player) {
     gc.closePath()
     gc.fill()
 }
-export function drawDebug(gc: CanvasRenderingContext2D, latency: number, receivePerSec: number, sendPerSec: number) {
+export function drawDebug(
+    gc: CanvasRenderingContext2D,
+    user: Player,
+    latency: number,
+    receivePerSec: number,
+    sendPerSec: number
+) {
     // Draw dark box
     gc.fillStyle = 'rgba(0,0,0,0.6)'
     gc.fillRect(0, 0, gc.canvas.width, 50)
 
-    // Draw ping
     gc.fillStyle = '#FFF'
     gc.font = '20px Arial'
-    gc.fillText(`PING: ${latency.toFixed(0)}`, 10, 35)
+
+    // Draw ping
+    gc.fillText(`PING: ${latency.toFixed(0)}`, 10, 31)
 
     // Draw receive per sec
-    gc.fillStyle = '#FFF'
-    gc.font = '20px Arial'
-    gc.fillText(`RECEIVES: ${(receivePerSec / 1000).toFixed(0)}Kb`, 100, 35)
+    gc.fillText(`RECEIVES: ${(receivePerSec / 1000).toFixed(0)}Kb/s`, 150, 31)
 
     // Draw send per sec
-    gc.fillStyle = '#FFF'
-    gc.font = '20px Arial'
-    gc.fillText(`SENDS: ${(sendPerSec / 1000).toFixed(0)}Kb`, 100, 35)
+    gc.fillText(`SENDS: ${(sendPerSec / 1000).toFixed(0)}Kb/s`, 400, 31)
+
+    // Draw pos
+    gc.fillText(`POS: (${user.pos.x.toFixed(1)}, ${user.pos.y.toFixed(1)})`, 650, 31)
 }

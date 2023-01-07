@@ -5,7 +5,6 @@ import { Login } from '@/components/login'
 import Connection from '@/server/connection'
 import { GetPacket } from '@/server/packet-get'
 import Inputs from '@/utils/inputs'
-import { getWorldMap } from '@/utils/map'
 
 export class WZDApp {
     inputs: Inputs
@@ -26,8 +25,7 @@ export class WZDApp {
 
         this.inputs = new Inputs()
         this.conn = new Connection(this.receive.bind(this))
-        const worldMap = await getWorldMap()
-        this.game = new Game(worldMap, this.conn, this.inputs)
+        this.game = new Game(this.conn, this.inputs)
         this.chat = new Chat(this.conn)
         this.build = new Build(this.conn, this.game)
 
@@ -61,11 +59,11 @@ export class WZDApp {
         requestAnimationFrame(this.loop.bind(this))
     }
 
-    private receive(pkt: GetPacket) {
+    private async receive(pkt: GetPacket) {
         const components = [this.game, this.chat, this.login]
         for (const comp of components) {
             if (comp.accepts().includes(pkt.type)) {
-                comp.receive(pkt)
+                await comp.receive(pkt)
             }
         }
     }

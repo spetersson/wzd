@@ -22,11 +22,11 @@ type GameMap struct {
 	counter   int
 }
 
-func (gm *GameMap) Width(x, y int) int {
+func (gm *GameMap) Width() int {
 	return gm.width
 }
 
-func (gm *GameMap) Height(x, y int) int {
+func (gm *GameMap) Height() int {
 	return gm.height
 }
 

@@ -1,41 +1,46 @@
+import * as bson from 'bson'
+
 import { Component } from '@/components'
 import { Consts } from '@/constants'
 import Connection from '@/server/connection'
 import { GetPacket, Player } from '@/server/packet-get'
 import { toDouble } from '@/server/types'
 import Inputs from '@/utils/inputs'
-import { MapData } from '@/utils/map'
-import { Sprite, SpriteType } from '@/utils/map/tiles'
-import { add, eq, isZero, mul, sub, Vec } from '@/utils/math'
+import { getWorldMap, MapData } from '@/utils/map'
+import { eq, isZero, Vec } from '@/utils/math'
 
 import {
+    Camera,
     collidePlayerPlayer,
     collidePlayerTiles,
-    movePlayer,
-    Camera,
+    drawDebug,
+    drawLoading,
     drawMap,
     drawPlayer,
     drawUser,
-    drawDebug,
+    movePlayer,
 } from '.'
 
 export default class Game extends Component {
     user: Player
+    map: MapData
 
     private container: HTMLDivElement
     private canvas: HTMLCanvasElement
     private cam: Camera
+    private loaded: boolean
     private focused: boolean
     private debug: boolean
 
+    private timeStarted: number
     private timestamp: number
     private latency: number
     private lastPing: number
     private pings: number[]
     private players: Player[]
 
-    constructor(public map: MapData, private conn: Connection, private inputs: Inputs) {
-        super(['update', 'pong'])
+    constructor(private conn: Connection, private inputs: Inputs) {
+        super(['update', 'pong', 'map'])
 
         this.user = {
             username: '-',
@@ -48,6 +53,7 @@ export default class Game extends Component {
         this.container = document.getElementById('game-container') as HTMLDivElement
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement
         this.cam = new Camera(Vec(this.user.pos), Consts.PREFERED_VIEW_SIZE, this.canvas.width, this.canvas.height)
+        this.loaded = false
         this.focused = false
         this.debug = false
 
@@ -82,9 +88,12 @@ export default class Game extends Component {
         this.conn.send({ type: 'join', username, pos: toDouble(this.user.pos) })
     }
 
-    receive(pkt: GetPacket) {
+    async receive(pkt: GetPacket) {
         switch (pkt.type) {
             case 'update':
+                if (!this.loaded) {
+                    break
+                }
                 const user = pkt.players.find((p) => p.username === this.user.username)
                 if (!user) {
                     console.error('Could not find player in update packet')
@@ -106,6 +115,11 @@ export default class Game extends Component {
                 this.timestamp = Date.now()
                 break
 
+            case 'map':
+                this.map = await getWorldMap(pkt.bytes.buffer, pkt.width, pkt.height)
+                this.loaded = true
+                break
+
             case 'pong':
                 this.updateLatency(Date.now() - pkt.timestamp)
                 break
@@ -123,6 +137,9 @@ export default class Game extends Component {
         this.debug = !this.debug
     }
     update() {
+        if (!this.loaded) {
+            return
+        }
         const now = Date.now()
         const dt = (now - this.timestamp) / 1000
         this.ping()
@@ -136,6 +153,12 @@ export default class Game extends Component {
 
         const gc = this.canvas.getContext('2d')
         gc.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+        if (!this.loaded) {
+            drawLoading(gc)
+            return
+        }
+
         drawMap(gc, this.cam, this.map)
 
         for (const player of this.players) {
@@ -146,7 +169,7 @@ export default class Game extends Component {
 
         if (this.debug) {
             const connStats = this.conn.getStats()
-            drawDebug(gc, this.latency, connStats.receivePerSecond, connStats.sendPerSecond)
+            drawDebug(gc, this.user, this.latency, connStats.receivePerSecond, connStats.sendPerSecond)
         }
     }
 

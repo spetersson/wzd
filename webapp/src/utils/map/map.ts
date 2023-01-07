@@ -1,4 +1,3 @@
-import worldMapUrl from '@/assets/world.map.png'
 import { getAllSprites, Sprite, SpriteType } from '@/utils/map/tiles'
 
 export interface BuildingType {
@@ -31,13 +30,7 @@ export interface MapData {
     height: number
     tiles: Tile[][]
     buildings: Record<number, Building>
-    buildingTypes: Record<number, BuildingType>
     tileSprites: Record<number, Sprite>
-}
-
-const buildingTypes: Record<number, BuildingType> = {
-    1: { name: 'Wall', typeId: 1, size: 0.8 },
-    2: { name: 'Turret', typeId: 2, size: 0.8 },
 }
 
 export function isWholeTile(tile: Tile): tile is WholeTile {
@@ -47,38 +40,29 @@ export function isSubTile(tile: Tile): tile is SubTile {
     return Boolean((tile as SubTile).subtileSprites)
 }
 
-export async function getWorldMap() {
+export async function getWorldMap(data: Uint8Array, width: number, height: number) {
     const tileSprites = await getAllSprites()
 
-    return new Promise<MapData>((resolve) => {
-        const img = new Image()
-        img.onload = (ev) => {
-            const canvas = document.createElement('canvas')
-            const width = (canvas.width = img.width)
-            const height = (canvas.height = img.height)
-            const gc = canvas.getContext('2d')
-            gc.drawImage(img, 0, 0)
-            const imgData = gc.getImageData(0, 0, canvas.width, canvas.height)
+    // First create boolean 2d array of the map (land=true, water=false)
+    const landMap: boolean[][] = new Array<boolean[]>(height)
+    for (let y = 0; y < height; y++) {
+        const row: boolean[] = new Array<boolean>(width)
+        for (let x = 0; x < width; x++) {
+            const tileId = data[y * width + x]
+            row[x] = tileId === 1
+        }
+        landMap[y] = row
+    }
 
-            // First create boolean 2d array of the map (land=true, water=false)
-            const landMap: boolean[][] = new Array<boolean[]>(height)
-            for (let y = 0; y < height; y++) {
-                const row: boolean[] = new Array<boolean>(width)
-                for (let x = 0; x < width; x++) {
-                    row[x] = imgData.data[y * width * 4 + x * 4] > 128
-                }
-                landMap[y] = row
-            }
-
-            const tiles = new Array<Tile[]>(height)
-            for (let y = 0; y < height; y++) {
-                const row = new Array<Tile>(width)
-                for (let x = 0; x < width; x++) {
-                    if (landMap[y][x]) {
-                        row[x] = { walkable: true, building: null, tileSprite: tileSprites[SpriteType.TILE_LAND] }
-                    } else {
-                        // TODO: Implement subtiling
-                        /* Example of a tile with subtiling
+    const tiles = new Array<Tile[]>(height)
+    for (let y = 0; y < height; y++) {
+        const row = new Array<Tile>(width)
+        for (let x = 0; x < width; x++) {
+            if (landMap[y][x]) {
+                row[x] = { walkable: true, building: null, tileSprite: tileSprites[SpriteType.TILE_LAND] }
+            } else {
+                // TODO: Implement subtiling
+                /* Example of a tile with subtiling
                         {
                             walkable: false,
                             building: null,
@@ -90,21 +74,17 @@ export async function getWorldMap() {
                             ],
                         }
                         */
-                        row[x] = { walkable: false, building: null, tileSprite: tileSprites[SpriteType.TILE_WATER] }
-                    }
-                }
-                tiles[y] = row
+                row[x] = { walkable: false, building: null, tileSprite: tileSprites[SpriteType.TILE_WATER] }
             }
-
-            resolve({
-                width,
-                height,
-                tiles,
-                buildings: {},
-                buildingTypes,
-                tileSprites,
-            })
         }
-        img.src = worldMapUrl
-    })
+        tiles[y] = row
+    }
+
+    return {
+        width,
+        height,
+        tiles,
+        buildings: {},
+        tileSprites,
+    }
 }

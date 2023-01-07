@@ -38,6 +38,8 @@ func (game *Game) receive(client *hub.Client, data dict) {
 		}
 		log.Printf("Player %s joined", username)
 
+		game.sendMap(client)
+
 	case "move":
 		dirData, ok1 := data["dir"].(dict)
 		if !ok1 {
