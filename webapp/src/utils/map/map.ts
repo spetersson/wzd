@@ -77,20 +77,65 @@ export async function getWorldMap() {
                     if (landMap[y][x]) {
                         row[x] = { walkable: true, building: null, tileSprite: tileSprites[SpriteType.TILE_LAND] }
                     } else {
-                        // TODO: Implement subtiling
-                        /* Example of a tile with subtiling
-                        {
+                        let tile1 = SpriteType.SUBTILE_WATER
+                        let tile2 = SpriteType.SUBTILE_WATER
+                        let tile3 = SpriteType.SUBTILE_WATER
+                        let tile4 = SpriteType.SUBTILE_WATER
+
+                        // TILE 1:
+                        if (y - 1 > 0 && x - 1 > 0 && landMap[y - 1][x] && landMap[y][x - 1]) {
+                            tile1 = SpriteType.SUBTILE_CORNER_FRONT_L
+                        } else if (y - 1 > 0 && landMap[y - 1][x]) {
+                            tile1 = SpriteType.SUBTILE_FRONT
+                        } else if (x - 1 > 0 && landMap[y][x - 1]) {
+                            tile1 = SpriteType.SUBTILE_SIDE_L
+                        } else if (y - 1 > 0 && x - 1 > 0 && landMap[y - 1][x - 1]) {
+                            tile1 = SpriteType.SUBTILE_POINT_FRONT_L
+                        }
+
+                        // TILE 2:
+                        if (y - 1 > 0 && landMap[y - 1][x] && landMap[y][x + 1]) {
+                            tile2 = SpriteType.SUBTILE_CORNER_FRONT_R
+                        } else if (y - 1 > 0 && landMap[y - 1][x]) {
+                            tile2 = SpriteType.SUBTILE_FRONT
+                        } else if (x - 1 > 0 && landMap[y][x + 1]) {
+                            tile2 = SpriteType.SUBTILE_SIDE_R
+                        } else if (y - 1 > 0 && landMap[y - 1][x + 1]) {
+                            tile2 = SpriteType.SUBTILE_POINT_FRONT_R
+                        }
+
+                        // TILE 3:
+                        if (y + 1 < height && x - 1 > 0 && landMap[y + 1][x] && landMap[y][x - 1]) {
+                            tile3 = SpriteType.SUBTILE_CORNER_BACK_L
+                        } else if (y + 1 < height && landMap[y + 1][x]) {
+                            tile3 = SpriteType.SUBTILE_BACK
+                        } else if (x - 1 > 0 && landMap[y][x - 1]) {
+                            tile3 = SpriteType.SUBTILE_SIDE_L
+                        } else if (y + 1 < height && x > 0 && landMap[y + 1][x - 1]) {
+                            tile3 = SpriteType.SUBTILE_POINT_BACK_L
+                        }
+
+                        // TILE 4:
+                        if (y + 1 < height && x + 1 < width && landMap[y + 1][x] && landMap[y][x + 1]) {
+                            tile4 = SpriteType.SUBTILE_CORNER_BACK_R
+                        } else if (y + 1 < height && landMap[y + 1][x]) {
+                            tile4 = SpriteType.SUBTILE_BACK
+                        } else if (x + 1 < width && landMap[y][x + 1]) {
+                            tile4 = SpriteType.SUBTILE_SIDE_R
+                        } else if (y + 1 < height && x + 1 < width && landMap[y + 1][x + 1]) {
+                            tile4 = SpriteType.SUBTILE_POINT_BACK_R
+                        }
+
+                        row[x] = {
                             walkable: false,
                             building: null,
                             subtileSprites: [
-                                tileSprites[SpriteType.SUBTILE_CORNER_FRONT_L],
-                                tileSprites[SpriteType.SUBTILE_CORNER_FRONT_R],
-                                tileSprites[SpriteType.SUBTILE_CORNER_BACK_L],
-                                tileSprites[SpriteType.SUBTILE_CORNER_BACK_R],
+                                tileSprites[tile1],
+                                tileSprites[tile2],
+                                tileSprites[tile3],
+                                tileSprites[tile4],
                             ],
                         }
-                        */
-                        row[x] = { walkable: false, building: null, tileSprite: tileSprites[SpriteType.TILE_WATER] }
                     }
                 }
                 tiles[y] = row
