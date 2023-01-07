@@ -19,7 +19,7 @@ export class Chat extends Component {
     }[] = []
 
     constructor(private conn: Connection) {
-        super([])
+        super(['message'])
         this.containerElem = document.getElementById('chat-container') as HTMLDivElement
         this.messagesElem = document.getElementById('chat-messages') as HTMLDivElement
         this.textboxElem = document.getElementById('chat-textbox') as HTMLDivElement
