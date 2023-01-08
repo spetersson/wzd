@@ -29,16 +29,28 @@ export class WZDApp {
         this.chat.hide()
 
         this.login.show()
-        const loginRes = await this.login.login()
+        let username = '-'
+        while (!this.conn.connected) {
+            try {
+                const loginRes = await this.login.login()
+                username = loginRes.username
+                await this.conn.connect(loginRes.host)
+            } catch (err) {
+                console.error(err)
+                let msg = 'Failed to connect to server'
+                if (err instanceof Error) {
+                    msg = err.message
+                }
+                this.login.errorMsg(msg)
+            }
+        }
         this.login.hide()
 
-        await this.conn.connect(loginRes.host)
-
         this.game.show()
-        this.game.init()
-        this.chat.init(loginRes.username)
+        this.game.init(username)
+        this.chat.init(username)
 
-        this.game.join(loginRes.username)
+        this.game.join()
         this.game.focus()
 
         this.inGame = true

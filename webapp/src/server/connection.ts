@@ -28,6 +28,10 @@ export default class Connection {
         setInterval(() => this.statsTick(), 1000)
     }
 
+    get connected() {
+        return this.conn ? this.conn.readyState === this.conn.OPEN : false
+    }
+
     async connect(path: string) {
         return new Promise<void>((resolve, reject) => {
             if (this.conn) {

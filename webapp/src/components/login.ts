@@ -8,12 +8,14 @@ export class Login {
     private joinForm: HTMLFormElement
     private hostField: HTMLInputElement
     private nameField: HTMLInputElement
+    private errorText: HTMLSpanElement
 
     constructor() {
         this.joinContainer = document.getElementById('join-container') as HTMLDivElement
         this.joinForm = document.getElementById('join-form') as HTMLFormElement
         this.hostField = document.getElementById('host-field') as HTMLInputElement
         this.nameField = document.getElementById('name-field') as HTMLInputElement
+        this.errorText = document.getElementById('error-text') as HTMLInputElement
     }
 
     focus() {
@@ -32,13 +34,18 @@ export class Login {
 
     login() {
         return new Promise<LoginResult>((resolve) => {
-            this.joinForm.onsubmit = (evt: SubmitEvent) => {
-                evt.preventDefault()
+            const onSubmit = (ev: SubmitEvent) => {
+                ev.preventDefault()
                 resolve({
                     username: this.nameField.value,
                     host: this.hostField.value,
                 })
             }
+            this.joinForm.addEventListener('submit', onSubmit, { once: true, capture: true })
         })
+    }
+
+    errorMsg(msg: string) {
+        this.errorText.textContent = msg
     }
 }

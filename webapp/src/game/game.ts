@@ -67,7 +67,8 @@ export default class Game extends Receiver {
         this.pings = []
     }
 
-    init() {
+    init(username: string) {
+        this.user.username = username
         this.resize()
         window.onresize = this.resize.bind(this)
         this.inputs.listenDown('Tab', this.onTab.bind(this))
@@ -88,9 +89,8 @@ export default class Game extends Receiver {
         this.container.style.display = 'none'
     }
 
-    async join(username: string) {
-        this.user.username = username
-        this.conn.send({ type: 'join', username, pos: toDouble(this.user.pos) })
+    async join() {
+        this.conn.send({ type: 'join', username: this.user.username, pos: toDouble(this.user.pos) })
     }
 
     async receive(pkt: GetPacket) {
