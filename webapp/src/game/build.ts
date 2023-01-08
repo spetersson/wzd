@@ -1,19 +1,16 @@
-import Game from '@/components/game'
+import Game from '@/game'
 import { Consts } from '@/constants'
 import Connection from '@/server/connection'
-import { GetPacket } from '@/server/packet-get'
 import { toInt32 } from '@/server/types'
 import { BuildingType } from '@/utils/map'
 import { Vec } from '@/utils/math'
 
-import { Component } from '.'
-
-export default class Build extends Component {
+export class BuildMenu {
+    status: 'show' | 'hide'
     buildContainer: HTMLDivElement
     gridContainer: HTMLDivElement
 
     constructor(private conn: Connection, private game: Game) {
-        super([])
         this.buildContainer = document.getElementById('build-container') as HTMLDivElement
         this.gridContainer = document.getElementById('grid-container') as HTMLDivElement
 
@@ -41,13 +38,19 @@ export default class Build extends Component {
         })
     }
 
-    _focus() {}
-    _unfocus() {}
-    _show() {
+    show() {
+        this.status = 'show'
         this.buildContainer.style.display = 'flex'
     }
-    _hide() {
+    hide() {
+        this.status = 'hide'
         this.buildContainer.style.display = 'none'
     }
-    receive(pkg: GetPacket) {}
+    toogle() {
+        if (this.status === 'show') {
+            this.hide()
+        } else {
+            this.show()
+        }
+    }
 }

@@ -1,44 +1,48 @@
-export type InputCallback = (key: string, ev: Event) => void
+import { KeyCodes } from './keys'
+
+export type InputCallback = (key: KeyCodes, ev: Event) => void
 
 export default class Inputs {
-    private keysDown: { [key: string]: boolean }
-    private listenersDown: { [key: string]: InputCallback }
-    private listenersUp: { [key: string]: InputCallback }
+    private keysDown: Partial<Record<KeyCodes, boolean>>
+    private listenersDown: Partial<Record<KeyCodes, InputCallback[]>>
+    private listenersUp: Partial<Record<KeyCodes, InputCallback[]>>
 
     constructor() {
         this.keysDown = {}
         this.listenersDown = {}
         this.listenersUp = {}
         window.onkeydown = (ev: KeyboardEvent) => {
-            let callback: InputCallback
-            if (!this.keysDown[ev.code]) {
-                callback = this.listenersDown[ev.code]
+            const code = ev.code as KeyCodes
+            let callbacks: InputCallback[]
+            if (!this.keysDown[code]) {
+                callbacks = this.listenersDown[code]
             }
-            this.keysDown[ev.code] = true
-            if (typeof callback === 'function') {
-                callback(ev.code, ev)
+            this.keysDown[code] = true
+            if (callbacks) {
+                callbacks.forEach((fn) => fn(code, ev))
             }
         }
         window.onkeyup = (ev: KeyboardEvent) => {
-            let callback: InputCallback
-            if (this.keysDown[ev.code]) {
-                callback = this.listenersUp[ev.code]
+            const code = ev.code as KeyCodes
+            let callbacks: InputCallback[]
+            if (this.keysDown[code]) {
+                callbacks = this.listenersUp[code]
             }
-            this.keysDown[ev.code] = false
-            if (typeof callback === 'function') {
-                callback(ev.code, ev)
+            this.keysDown[code] = false
+            if (callbacks) {
+                callbacks.forEach((fn) => fn(code, ev))
             }
         }
     }
 
-    isDown(key: string) {
-        return Boolean(this.keysDown[key])
+    isDown(code: KeyCodes) {
+        return Boolean(this.keysDown[code])
     }
 
-    listenDown(key: string, callback: InputCallback) {
-        this.listenersDown[key] = callback
+    listenDown(code: KeyCodes, callback: InputCallback) {
+        this.listenersDown[code] = this.listenersDown[code] ? [...this.listenersDown[code], callback] : [callback]
     }
-    listenUp(key: string, callback: InputCallback) {
-        this.listenersUp[key] = callback
+    listenUp(code: KeyCodes, callback: InputCallback) {
+        this.listenersUp[code] = this.listenersUp[code] ? [...this.listenersUp[code], callback] : [callback]
     }
 }

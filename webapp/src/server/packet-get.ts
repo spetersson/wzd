@@ -2,6 +2,7 @@ import * as bson from 'bson'
 
 import { Building } from '@/utils/map'
 import { Vec } from '@/utils/math'
+import { PacketBase } from './packet'
 
 export interface Player {
     username: string
@@ -11,23 +12,19 @@ export interface Player {
     sprinting: boolean
 }
 
-export interface GetPacketUpdate {
-    type: 'update'
+export interface GetPacketUpdate extends PacketBase<'update'> {
     timestamp: number
     players: Player[]
     buildings: Building[]
 }
-export interface GetPacketMessage {
-    type: 'message'
+export interface GetPacketMessage extends PacketBase<'message'> {
     username: string
     message: string
 }
-export interface GetPacketPing {
-    type: 'pong'
+export interface GetPacketPing extends PacketBase<'pong'> {
     timestamp: number
 }
-export interface GetPacketMap {
-    type: 'map'
+export interface GetPacketMap extends PacketBase<'map'> {
     width: number
     height: number
     bytes: bson.Binary

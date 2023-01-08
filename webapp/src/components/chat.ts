@@ -1,11 +1,12 @@
 import Connection from '@/server/connection'
 import { GetPacket } from '@/server/packet-get'
 
-import { Component } from '.'
+import { Receiver } from '.'
 
 const PERSISTENCE_TIME = 10 * 1000 // 10 sec
 
-export class Chat extends Component {
+export class Chat extends Receiver {
+    status: 'show' | 'hide'
     containerElem: HTMLDivElement
     messagesElem: HTMLDivElement
     textboxElem: HTMLDivElement
@@ -39,20 +40,23 @@ export class Chat extends Component {
         this.chatPlayerUsername.textContent = username
     }
 
-    _unfocus() {
+    unfocus() {
         this.chatInput.blur()
     }
-    _focus() {
+    focus() {
         this.chatInput.focus()
     }
-    _show() {
+    show() {
+        this.status = 'show'
         this.containerElem.style.backgroundColor = 'rgba(255,255,255,0.3)'
         this.textboxElem.style.opacity = '1'
         for (const message of this.messages) {
             message.elem.style.opacity = '1'
         }
     }
-    _hide() {
+    hide() {
+        this.unfocus()
+        this.status = 'hide'
         this.containerElem.style.backgroundColor = 'transparent'
         this.textboxElem.style.opacity = '0'
         for (const message of this.messages) {

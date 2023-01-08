@@ -1,6 +1,6 @@
 import { Consts } from '@/constants'
 import { Player } from '@/server/packet-get'
-import { isWholeTile, MapData } from '@/utils/map'
+import { Building, isWholeTile, MapData } from '@/utils/map'
 import { Vec } from '@/utils/math'
 
 import { Camera } from './camera'
@@ -26,68 +26,75 @@ export function drawLoading(gc: CanvasRenderingContext2D) {
 
 export function drawMap(gc: CanvasRenderingContext2D, cam: Camera, map: MapData) {
     const worldIdxBB = cam.getWorldIdxBB()
-    const scale = cam.getScale()
+    const tileW = cam.getScale()
     for (let iy = worldIdxBB.top; iy <= worldIdxBB.bottom; iy++) {
         for (let ix = worldIdxBB.left; ix <= worldIdxBB.right; ix++) {
             if (ix < 0 || ix >= map.width || iy < 0 || iy >= map.height) {
                 continue
             }
-            const { x, y } = cam.worldToScreen(Vec(ix, iy))
+            const { x, y } = cam.vecWorldToScreen(Vec(ix, iy))
             const px = Math.round(x)
             const py = Math.round(y)
             const tile = map.tiles[iy][ix]
             if (isWholeTile(tile)) {
-                gc.drawImage(tile.tileSprite.img, px, py, scale, scale)
+                gc.drawImage(tile.tileSprite.img, px, py, tileW, tileW)
             } else {
-                const halfTileW = Math.round(scale * 0.5)
+                const halfTileW = Math.round(tileW * 0.5)
                 gc.drawImage(tile.subtileSprites[0].img, px, py, halfTileW, halfTileW)
                 gc.drawImage(tile.subtileSprites[1].img, px + halfTileW, py, halfTileW, halfTileW)
                 gc.drawImage(tile.subtileSprites[2].img, px, py + halfTileW, halfTileW, halfTileW)
                 gc.drawImage(tile.subtileSprites[3].img, px + halfTileW, py + halfTileW, halfTileW, halfTileW)
             }
 
-            // TODO: use drawBuilding to render buildings
             if (tile.building) {
-                if (tile.building.typeId === 1) {
-                    gc.fillStyle = '#666'
-                } else {
-                    gc.fillStyle = '#955'
-                }
-                gc.fillRect(x + scale * 0.1, y + scale * 1, scale * 0.8, scale * 0.8)
-                if (tile.building.typeId === 1) {
-                    gc.fillStyle = '#333'
-                } else {
-                    gc.fillStyle = '#522'
-                }
-                gc.fillRect(x + scale * 0.2, y + scale * 0.2, scale * 0.6, scale * 0.6)
+                drawBuilding(gc, cam, tile.building)
             }
         }
     }
 }
-export function drawBuilding(gc: CanvasRenderingContext2D, cam: Camera) {
-    // TODO: Implement dynamic bulding render
+
+export function drawBuilding(gc: CanvasRenderingContext2D, cam: Camera, building: Building) {
+    const { x, y } = cam.xyWorldToScreen(building.ix, building.iy)
+    const tileW = cam.getScale()
+    const type = Consts.BUILDING_TYPES[building.typeId]
+    const offset = (1 - type.size) * 0.5
+    if (building.typeId === 1) {
+        gc.fillStyle = '#666'
+    } else {
+        gc.fillStyle = '#955'
+    }
+    gc.fillRect(x + tileW * offset, y + tileW * offset, tileW * type.size, tileW * type.size)
+    if (building.typeId === 1) {
+        gc.fillStyle = '#333'
+    } else {
+        gc.fillStyle = '#522'
+    }
+    gc.fillRect(x + tileW * 0.2, y + tileW * 0.2, tileW * 0.6, tileW * 0.6)
 }
+
 export function drawPlayer(gc: CanvasRenderingContext2D, cam: Camera, p: Player) {
-    const scale = cam.getScale()
-    const { x, y } = cam.worldToScreen(p.pos)
+    const tileW = cam.getScale()
+    const { x, y } = cam.vecWorldToScreen(p.pos)
     gc.fillStyle = '#C11'
     gc.beginPath()
-    gc.ellipse(x, y, scale * Consts.PLAYER_RAD, scale * Consts.PLAYER_RAD, 0, 0, Math.PI * 2)
+    gc.ellipse(x, y, tileW * Consts.PLAYER_RAD, tileW * Consts.PLAYER_RAD, 0, 0, Math.PI * 2)
     gc.closePath()
     gc.fill()
     gc.fillStyle = '#000'
     gc.font = '30px Arial'
-    gc.fillText(p.username, x + scale * 0.5, y - scale * 0.5)
+    gc.fillText(p.username, x + tileW * 0.5, y - tileW * 0.5)
 }
+
 export function drawUser(gc: CanvasRenderingContext2D, cam: Camera, p: Player) {
     const scale = cam.getScale()
-    const { x, y } = cam.worldToScreen(p.pos)
+    const { x, y } = cam.vecWorldToScreen(p.pos)
     gc.fillStyle = '#F00'
     gc.beginPath()
     gc.ellipse(x, y, scale * Consts.PLAYER_RAD, scale * Consts.PLAYER_RAD, 0, 0, Math.PI * 2)
     gc.closePath()
     gc.fill()
 }
+
 export function drawDebug(
     gc: CanvasRenderingContext2D,
     user: Player,

@@ -1,4 +1,4 @@
-import { BB, mul, sub, Vec } from '@/utils/math'
+import { BB, Vec } from '@/utils/math'
 
 export class Camera {
     private pos: Vec
@@ -51,10 +51,16 @@ export class Camera {
         return this.worldIdxBB
     }
 
-    worldToScreen(p: Vec): Vec {
+    vecWorldToScreen(p: Vec): Vec {
         return {
             x: (p.x - this.worldBB.left) * this.scale,
             y: (p.y - this.worldBB.top) * this.scale,
+        }
+    }
+    xyWorldToScreen(x: number, y: number): Vec {
+        return {
+            x: (x - this.worldBB.left) * this.scale,
+            y: (y - this.worldBB.top) * this.scale,
         }
     }
 }

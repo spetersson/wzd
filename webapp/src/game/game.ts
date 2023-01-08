@@ -1,11 +1,10 @@
-import * as bson from 'bson'
-
-import { Component } from '@/components'
+import { Receiver } from '@/components'
 import { Consts } from '@/constants'
 import Connection from '@/server/connection'
 import { GetPacket, Player } from '@/server/packet-get'
 import { toDouble } from '@/server/types'
 import Inputs from '@/utils/inputs'
+import { KeyCodes } from '@/utils/keys'
 import { getWorldMap, MapData } from '@/utils/map'
 import { eq, isZero, Vec } from '@/utils/math'
 
@@ -19,28 +18,31 @@ import {
     drawPlayer,
     drawUser,
     movePlayer,
+    BuildMenu,
 } from '.'
 
-export default class Game extends Component {
+export default class Game extends Receiver {
     user: Player
+    players: Player[]
     map: MapData
+    cam: Camera
+    buildMenu: BuildMenu
 
-    private container: HTMLDivElement
-    private canvas: HTMLCanvasElement
-    private cam: Camera
-    private loaded: boolean
-    private focused: boolean
-    private debug: boolean
+    container: HTMLDivElement
+    canvas: HTMLCanvasElement
+    loaded: boolean
+    focused: boolean
+    debug: boolean
 
-    private timeStarted: number
-    private timestamp: number
-    private latency: number
-    private lastPing: number
-    private pings: number[]
-    private players: Player[]
+    timestamp: number
+    latency: number
+    lastPing: number
+    pings: number[]
 
-    constructor(private conn: Connection, private inputs: Inputs) {
+    constructor(public conn: Connection, public inputs: Inputs) {
         super(['update', 'pong', 'map'])
+        this.container = document.getElementById('game-container') as HTMLDivElement
+        this.canvas = document.getElementById('canvas') as HTMLCanvasElement
 
         this.user = {
             username: '-',
@@ -49,10 +51,12 @@ export default class Game extends Component {
             dir: Vec(),
             sprinting: false,
         }
-
-        this.container = document.getElementById('game-container') as HTMLDivElement
-        this.canvas = document.getElementById('canvas') as HTMLCanvasElement
+        this.players = []
+        this.map = { width: 0, height: 0, buildings: {}, tiles: [], tileSprites: {} }
         this.cam = new Camera(Vec(this.user.pos), Consts.PREFERED_VIEW_SIZE, this.canvas.width, this.canvas.height)
+        this.buildMenu = new BuildMenu(conn, this)
+        this.buildMenu.hide()
+
         this.loaded = false
         this.focused = false
         this.debug = false
@@ -61,25 +65,26 @@ export default class Game extends Component {
         this.latency = 0
         this.lastPing = 0
         this.pings = []
-        this.players = []
+    }
 
+    init() {
         this.resize()
         window.onresize = this.resize.bind(this)
         this.inputs.listenDown('Tab', this.onTab.bind(this))
+        this.inputs.listenDown('KeyE', this.onKeyE.bind(this))
     }
 
-    _unfocus() {
+    unfocus() {
         this.focused = false
     }
 
-    _focus() {
+    focus() {
         this.focused = true
     }
-    _show() {
+    show() {
         this.container.style.display = 'block'
-        this.resize()
     }
-    _hide() {
+    hide() {
         this.container.style.display = 'none'
     }
 
@@ -129,12 +134,18 @@ export default class Game extends Component {
                 return
         }
     }
-    onTab(_key: string, ev: Event) {
+    onTab(_key: KeyCodes, ev: Event) {
         if (!this.focused) {
             return
         }
         ev.preventDefault()
         this.debug = !this.debug
+    }
+    onKeyE(_key: KeyCodes, _ev: Event) {
+        if (!this.focused) {
+            return
+        }
+        this.buildMenu.toogle()
     }
     update() {
         if (!this.loaded) {
@@ -149,6 +160,9 @@ export default class Game extends Component {
         this.timestamp = now
     }
     draw() {
+        if (!this.loaded) {
+            return
+        }
         this.cam.update(this.user.pos, Consts.PREFERED_VIEW_SIZE, this.canvas.width, this.canvas.height)
 
         const gc = this.canvas.getContext('2d')

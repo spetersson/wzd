@@ -1,6 +1,5 @@
-import Build from '@/components/build'
 import { Chat } from '@/components/chat'
-import Game from '@/components/game'
+import Game from '@/game'
 import { Login } from '@/components/login'
 import Connection from '@/server/connection'
 import { GetPacket } from '@/server/packet-get'
@@ -12,7 +11,6 @@ export class WZDApp {
     login: Login
     game: Game
     chat: Chat
-    build: Build
 
     inGame: boolean
 
@@ -22,33 +20,31 @@ export class WZDApp {
         }
 
         this.login = new Login()
-
         this.inputs = new Inputs()
         this.conn = new Connection(this.receive.bind(this))
         this.game = new Game(this.conn, this.inputs)
         this.chat = new Chat(this.conn)
-        this.build = new Build(this.conn, this.game)
 
-        this.login.show()
         this.game.hide()
         this.chat.hide()
-        this.build.hide()
 
+        this.login.show()
         const loginRes = await this.login.login()
-        this.chat.init(loginRes.username)
-        await this.conn.connect(loginRes.host)
-        this.game.join(loginRes.username)
-
         this.login.hide()
+
+        await this.conn.connect(loginRes.host)
+
         this.game.show()
+        this.game.init()
+        this.chat.init(loginRes.username)
+
+        this.game.join(loginRes.username)
         this.game.focus()
 
         this.inGame = true
 
         this.inputs.listenUp('Enter', this.onEnterKey.bind(this))
         this.inputs.listenUp('Escape', this.onEscKey.bind(this))
-
-        this.inputs.listenUp('KeyE', this.onEKey.bind(this))
 
         requestAnimationFrame(this.loop.bind(this))
     }
@@ -60,13 +56,14 @@ export class WZDApp {
     }
 
     private async receive(pkt: GetPacket) {
-        const components = [this.game, this.chat, this.login]
+        const components = [this.game, this.chat]
         for (const comp of components) {
             if (comp.accepts().includes(pkt.type)) {
                 await comp.receive(pkt)
             }
         }
     }
+
     private onEnterKey() {
         if (this.inGame) {
             this.chat.show()
@@ -83,20 +80,8 @@ export class WZDApp {
     private onEscKey() {
         if (!this.inGame) {
             this.chat.hide()
-            this.build.hide()
             this.game.focus()
             this.inGame = true
-        }
-    }
-    private onEKey() {
-        if (this.inGame) {
-            this.build.show()
-            this.inGame = false
-            this.game.unfocus()
-        } else if (this.build.status === 'show') {
-            this.build.hide()
-            this.inGame = true
-            this.game.focus()
         }
     }
 }

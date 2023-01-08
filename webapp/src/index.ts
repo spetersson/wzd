@@ -1,4 +1,5 @@
 import { WZDApp } from '@/app'
+import './styles.scss'
 
 window.onload = async () => {
     try {
