@@ -11,8 +11,10 @@ import (
 )
 
 const (
-	LOOP_INTERVAL   = time.Second / 60
-	UPDATE_INTERVAL = time.Second / 30
+	LOOP_INTERVAL    = time.Second / 60
+	UPDATE_INTERVAL  = time.Second / 30
+	MAX_ENEMIES      = 100
+	ENEMY_SPAWN_RATE = 1.0 / 10
 )
 
 type dict = map[string]any
@@ -25,6 +27,7 @@ func NewGame(server *hub.Hub) *Game {
 		players:   make(map[*hub.Client]*Player),
 		enemies:   make(map[int]*Enemy),
 		done:      make(chan bool),
+		idCounter: 0,
 	}
 }
 
@@ -57,4 +60,10 @@ func (game *Game) Run() {
 			delete(game.players, client)
 		}
 	}
+}
+
+func (game *Game) nextId() int {
+	id := game.idCounter
+	game.idCounter++
+	return id
 }

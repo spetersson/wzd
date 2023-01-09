@@ -3,14 +3,13 @@ package game
 import (
 	"math"
 
-	"github.com/spetersson/wzd/backend/vec"
+	m "github.com/spetersson/wzd/backend/math"
 )
 
-type BB struct {
-	Left   float64
-	Right  float64
-	Top    float64
-	Bottom float64
+type Body interface {
+	Pos() m.Vec
+	Vel() m.Vec
+	BB() m.BB
 }
 
 func sign(num float64) float64 {
@@ -21,18 +20,18 @@ func sign(num float64) float64 {
 	}
 }
 
-func collidePlayerBB(player *Player, bb BB) {
+func collidePlayerBB(player *Player, bb m.BB) {
 	halfW := (bb.Right - bb.Left) * 0.5
 	halfH := (bb.Bottom - bb.Top) * 0.5
-	bbMid := vec.NewVec(bb.Left+halfW, bb.Top+halfH)
+	bbMid := m.NewVec(bb.Left+halfW, bb.Top+halfH)
 	delta := player.Pos.Sub(bbMid)
 	// Line to collide with
-	var linePos vec.Vec
-	var lineNorm vec.Vec
+	var linePos m.Vec
+	var lineNorm m.Vec
 
 	if math.Abs(delta.X) >= halfW && math.Abs(delta.Y) > halfH {
 		// Corner collision
-		linePos = vec.NewVec(
+		linePos = m.NewVec(
 			bbMid.X+sign(delta.X)*halfW,
 			bbMid.Y+sign(delta.Y)*halfH,
 		)
@@ -40,12 +39,12 @@ func collidePlayerBB(player *Player, bb BB) {
 		lineNorm.INormalize()
 	} else if math.Abs(delta.X) > math.Abs(delta.Y) {
 		// Horizontal
-		linePos = vec.NewVec(bbMid.X+halfW*sign(delta.X), bbMid.Y)
-		lineNorm = vec.NewVec(sign(delta.X), 0)
+		linePos = m.NewVec(bbMid.X+halfW*sign(delta.X), bbMid.Y)
+		lineNorm = m.NewVec(sign(delta.X), 0)
 	} else {
 		// Vertical
-		lineNorm = vec.NewVec(0, sign(delta.Y))
-		linePos = vec.NewVec(bbMid.X, bbMid.Y+halfH*sign(delta.Y))
+		lineNorm = m.NewVec(0, sign(delta.Y))
+		linePos = m.NewVec(bbMid.X, bbMid.Y+halfH*sign(delta.Y))
 	}
 
 	// Project player onto line normal

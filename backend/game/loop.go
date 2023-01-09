@@ -2,6 +2,8 @@ package game
 
 import (
 	"math"
+
+	m "github.com/spetersson/wzd/backend/math"
 )
 
 const (
@@ -32,6 +34,8 @@ func (game *Game) loop(dt float64) {
 	for _, player := range game.players {
 		game.collidePlayerTiles(player)
 	}
+
+	game.spawnEnemies(dt)
 }
 
 func (game *Game) movePlayer(player *Player, dt float64) {
@@ -83,10 +87,10 @@ func (game *Game) collidePlayerTiles(player *Player) {
 			}
 
 			tile := game.gameMap.At(ix, iy)
-			var bb *BB = nil
+			var bb *m.BB = nil
 			if !tile.Walkable() {
 				// Collide with entire tile
-				bb = &BB{
+				bb = &m.BB{
 					Left:   float64(ix),
 					Right:  float64(ix + 1),
 					Top:    float64(iy),
@@ -95,7 +99,7 @@ func (game *Game) collidePlayerTiles(player *Player) {
 			} else if tile.Building() != nil {
 				// Collide with building on tile
 				diff := (1 - tile.Building().Type().Size()) * 0.5
-				bb = &BB{
+				bb = &m.BB{
 					Left:   float64(ix) + diff,
 					Right:  float64(ix) + 1 - diff,
 					Top:    float64(iy) + diff,

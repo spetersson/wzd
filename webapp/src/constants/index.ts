@@ -4,6 +4,7 @@ import { Vec } from '@/utils/math'
 const BUILDING_TYPES: Record<number, BuildingType> = {
     1: { name: 'Wall', typeId: 1, size: 0.8 },
     2: { name: 'Turret', typeId: 2, size: 0.8 },
+    3: { name: 'EnemyBase', typeId: 2, size: 0.8 },
 }
 
 export const Consts = {

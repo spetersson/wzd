@@ -39,9 +39,21 @@ func (game *Game) update() {
 		})
 	}
 
+	enemies := make(bson.A, 0)
+	for _, enemy := range game.enemies {
+		enemies = append(enemies, bson.M{
+			"id": enemy.Id,
+			"pos": bson.M{
+				"x": enemy.X,
+				"y": enemy.Y,
+			},
+		})
+	}
+
 	game.server.SendAll(bson.M{
 		"type":      "update",
 		"players":   players,
 		"buildings": buildings,
+		"enemies":   enemies,
 	})
 }

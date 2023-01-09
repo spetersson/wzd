@@ -3,21 +3,15 @@ package game
 import (
 	"github.com/spetersson/wzd/backend/game_map"
 	"github.com/spetersson/wzd/backend/hub"
-	"github.com/spetersson/wzd/backend/vec"
+	m "github.com/spetersson/wzd/backend/math"
 )
 
 type Player struct {
-	Username  string  `json:"username"`
-	Pos       vec.Vec `json:"pos"`
-	Vel       vec.Vec `json:"vel"`
-	Dir       vec.Vec `json:"-"`
-	Sprinting bool    `json:"-"`
-}
-
-type Enemy struct {
-	Id int
-	X  float64
-	Y  float64
+	Username  string `json:"username"`
+	Pos       m.Vec  `json:"pos"`
+	Vel       m.Vec  `json:"vel"`
+	Dir       m.Vec  `json:"-"`
+	Sprinting bool   `json:"-"`
 }
 
 type Game struct {
@@ -27,4 +21,5 @@ type Game struct {
 	players   map[*hub.Client]*Player
 	enemies   map[int]*Enemy
 	done      chan bool
+	idCounter int
 }

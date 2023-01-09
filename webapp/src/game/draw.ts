@@ -4,7 +4,7 @@ import { Building, isWholeTile, MapData } from '@/utils/map'
 import { Vec } from '@/utils/math'
 
 import { Camera } from './camera'
-import { InHands } from './types'
+import { Enemy, InHands } from './types'
 
 export function drawLoading(gc: CanvasRenderingContext2D) {
     gc.fillStyle = '#AAA'
@@ -103,11 +103,20 @@ export function drawBuilding(gc: CanvasRenderingContext2D, cam: Camera, building
     gc.fillRect(x + tileW * 0.2, y + tileW * 0.2, tileW * 0.6, tileW * 0.6)
     gc.globalAlpha = 1
 }
+export function drawEnemy(gc: CanvasRenderingContext2D, cam: Camera, e: Enemy) {
+    const tileW = cam.getScale()
+    const { x, y } = cam.vecWorldToScreen(e.pos)
+    gc.fillStyle = '#933'
+    gc.beginPath()
+    gc.ellipse(x, y, tileW * Consts.PLAYER_RAD, tileW * Consts.PLAYER_RAD, 0, 0, Math.PI * 2)
+    gc.closePath()
+    gc.fill()
+}
 
 export function drawPlayer(gc: CanvasRenderingContext2D, cam: Camera, p: Player) {
     const tileW = cam.getScale()
     const { x, y } = cam.vecWorldToScreen(p.pos)
-    gc.fillStyle = '#C11'
+    gc.fillStyle = '#339'
     gc.beginPath()
     gc.ellipse(x, y, tileW * Consts.PLAYER_RAD, tileW * Consts.PLAYER_RAD, 0, 0, Math.PI * 2)
     gc.closePath()
@@ -120,7 +129,7 @@ export function drawPlayer(gc: CanvasRenderingContext2D, cam: Camera, p: Player)
 export function drawUser(gc: CanvasRenderingContext2D, cam: Camera, p: Player) {
     const scale = cam.getScale()
     const { x, y } = cam.vecWorldToScreen(p.pos)
-    gc.fillStyle = '#F00'
+    gc.fillStyle = '#44C'
     gc.beginPath()
     gc.ellipse(x, y, scale * Consts.PLAYER_RAD, scale * Consts.PLAYER_RAD, 0, 0, Math.PI * 2)
     gc.closePath()

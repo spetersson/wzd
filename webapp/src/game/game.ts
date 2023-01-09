@@ -14,11 +14,13 @@ import {
     collidePlayerPlayer,
     collidePlayerTiles,
     drawDebug,
+    drawEnemy,
     drawInHands,
     drawLoading,
     drawMap,
     drawPlayer,
     drawUser,
+    Enemy,
     InHands,
     movePlayer,
 } from '.'
@@ -26,6 +28,7 @@ import {
 export default class Game extends Receiver {
     user: Player
     players: Player[]
+    enemies: Enemy[]
     map: MapData
     cam: Camera
     buildMenu: BuildMenu
@@ -56,6 +59,7 @@ export default class Game extends Receiver {
             sprinting: false,
         }
         this.players = []
+        this.enemies = []
         this.map = null
         this.cam = new Camera(Vec(this.user.pos), Consts.PREFERED_VIEW_SIZE, this.canvas.width, this.canvas.height)
         this.buildMenu = new BuildMenu()
@@ -117,6 +121,7 @@ export default class Game extends Receiver {
                 this.user.vel = Vec(user.vel)
                 this.players = pkt.players.filter((p) => p.username !== this.user.username)
                 this.map.replaceBuildings(pkt.buildings)
+                this.enemies = pkt.enemies
                 this.latestServerUpdate = Date.now()
                 break
 
@@ -224,6 +229,9 @@ export default class Game extends Receiver {
 
         drawMap(gc, this.cam, this.map)
 
+        for (const enemy of this.enemies) {
+            drawEnemy(gc, this.cam, enemy)
+        }
         for (const player of this.players) {
             drawPlayer(gc, this.cam, player)
         }

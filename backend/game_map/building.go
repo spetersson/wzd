@@ -1,5 +1,11 @@
 package game_map
 
+const (
+	BUILDING_TYPE_WALL = iota + 1
+	BUILDING_TYPE_TURRET
+	BUILDING_TYPE_ENEMY_BASE
+)
+
 type BuildingType struct {
 	typeId int
 	size   float64
@@ -17,12 +23,16 @@ type Building struct {
 }
 
 var buildingTypes = map[int]*BuildingType{
-	1: {
-		typeId: 1,
+	BUILDING_TYPE_WALL: {
+		typeId: BUILDING_TYPE_WALL,
 		size:   0.8,
 	},
-	2: {
-		typeId: 2,
+	BUILDING_TYPE_TURRET: {
+		typeId: BUILDING_TYPE_TURRET,
+		size:   0.8,
+	},
+	BUILDING_TYPE_ENEMY_BASE: {
+		typeId: BUILDING_TYPE_ENEMY_BASE,
 		size:   0.8,
 	},
 }

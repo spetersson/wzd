@@ -1,6 +1,19 @@
-package vec
+package math
 
 import "math"
+
+type Vec struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
+
+func NewVec(x, y float64) Vec {
+	return Vec{X: x, Y: y}
+}
+
+func (v Vec) IsZero() bool {
+	return v.X == 0 && v.Y == 0
+}
 
 func (a Vec) Add(b Vec) Vec {
 	return Vec{
@@ -44,4 +57,27 @@ func (a Vec) Neg() Vec {
 		X: -a.X,
 		Y: -a.Y,
 	}
+}
+
+// In-place operations
+
+func (a *Vec) IAdd(b Vec) {
+	a.X += b.X
+	a.Y += b.Y
+}
+
+func (a *Vec) ISub(b Vec) {
+	a.X -= b.X
+	a.Y -= b.Y
+}
+
+func (a *Vec) IMul(s float64) {
+	a.X *= s
+	a.Y *= s
+}
+
+func (a *Vec) INormalize() {
+	lenInv := 1.0 / math.Hypot(a.X, a.Y)
+	a.X *= lenInv
+	a.Y *= lenInv
 }

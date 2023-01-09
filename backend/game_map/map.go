@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	TILE_WATER      = color.NRGBA{0, 0, 0, 255}
-	TILE_LAND       = color.NRGBA{255, 255, 255, 255}
-	TILE_ENEMY_BASE = color.NRGBA{255, 0, 0, 255}
+	TILE_WATER      = color.RGBA{0, 0, 0, 255}
+	TILE_LAND       = color.RGBA{255, 255, 255, 255}
+	TILE_ENEMY_BASE = color.RGBA{255, 0, 0, 255}
 )
 
 type GameMap struct {
@@ -19,7 +19,7 @@ type GameMap struct {
 	height    int
 	tiles     [][]Tile
 	buildings map[int]*Building
-	counter   int
+	idCounter int
 }
 
 func (gm *GameMap) Width() int {
@@ -43,17 +43,15 @@ func (gm *GameMap) Buildings() map[int]*Building {
 }
 
 func (gm *GameMap) Place(typeId, x, y int) *Building {
-	id := gm.counter
-	gm.counter++
 	building := Building{
-		id:     id,
+		id:     gm.nextId(),
 		typeId: typeId,
 		ix:     x,
 		iy:     y,
 	}
 
 	gm.tiles[y][x].building = &building
-	gm.buildings[id] = &building
+	gm.buildings[building.id] = &building
 
 	return &building
 }
@@ -77,33 +75,46 @@ func GetMap() GameMap {
 
 	width := img.Bounds().Max.X
 	height := img.Bounds().Max.Y
-	tiles := make([][]Tile, height)
-	buildings := make(map[int]*Building)
-	for y := 0; y < height; y++ {
-		tiles[y] = make([]Tile, width)
-		for x := 0; x < width; x++ {
-			col, ok := img.At(x, y).(color.NRGBA)
+	gm := GameMap{
+		width:     width,
+		height:    height,
+		tiles:     make([][]Tile, height),
+		buildings: make(map[int]*Building),
+		idCounter: 0,
+	}
+	for iy := 0; iy < height; iy++ {
+		gm.tiles[iy] = make([]Tile, width)
+		for ix := 0; ix < width; ix++ {
+			col, ok := img.At(ix, iy).(color.RGBA)
 			if !ok {
-				log.Fatalf("Pixel at (%d, %d) could not be converted to RGBA", x, y)
+				log.Fatalf("Pixel at (%d, %d) could not be converted to RGBA", ix, iy)
 			}
 			switch col {
 			case TILE_WATER:
-				tiles[y][x] = Tile{false, nil}
+				gm.tiles[iy][ix] = Tile{false, nil}
 			case TILE_ENEMY_BASE:
-				tiles[y][x] = Tile{true, nil}
+				id := gm.nextId()
+				building := &Building{
+					id:     id,
+					typeId: BUILDING_TYPE_ENEMY_BASE,
+					ix:     ix,
+					iy:     iy,
+				}
+				gm.tiles[iy][ix] = Tile{true, building}
+				gm.buildings[id] = building
 			case TILE_LAND:
-				tiles[y][x] = Tile{true, nil}
+				gm.tiles[iy][ix] = Tile{true, nil}
 			default:
 				log.Fatal("Unknown tile color %w", col)
 			}
 		}
 	}
 
-	return GameMap{
-		width:     width,
-		height:    height,
-		tiles:     tiles,
-		buildings: buildings,
-		counter:   0,
-	}
+	return gm
+}
+
+func (gm *GameMap) nextId() int {
+	id := gm.idCounter
+	gm.idCounter++
+	return id
 }

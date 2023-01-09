@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/spetersson/wzd/backend/hub"
-	"github.com/spetersson/wzd/backend/vec"
+	m "github.com/spetersson/wzd/backend/math"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -32,9 +32,9 @@ func (game *Game) receive(client *hub.Client, data dict) {
 		}
 		game.players[client] = &Player{
 			Username:  username,
-			Pos:       vec.NewVec(x, y),
-			Vel:       vec.NewVec(0, 0),
-			Dir:       vec.NewVec(0, 0),
+			Pos:       m.NewVec(x, y),
+			Vel:       m.NewVec(0, 0),
+			Dir:       m.NewVec(0, 0),
 			Sprinting: false,
 		}
 		serverMsg := fmt.Sprintf("Player %s has joined", username)
@@ -59,7 +59,7 @@ func (game *Game) receive(client *hub.Client, data dict) {
 			log.Printf("Failed to parse move packet %v", data)
 			return
 		}
-		dir := vec.NewVec(x, y)
+		dir := m.NewVec(x, y)
 		if !dir.IsZero() {
 			dir.INormalize()
 		}
