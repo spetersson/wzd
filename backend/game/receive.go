@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/spetersson/wzd/backend/hub"
@@ -36,9 +37,14 @@ func (game *Game) receive(client *hub.Client, data dict) {
 			Dir:       vec.NewVec(0, 0),
 			Sprinting: false,
 		}
-		log.Printf("Player %s joined", username)
+		serverMsg := fmt.Sprintf("Player %s has joined", username)
 
 		game.sendMap(client)
+		game.server.SendAll(bson.M{
+			"type":    "message",
+			"message": serverMsg,
+		})
+		log.Print(serverMsg)
 
 	case "move":
 		dirData, ok1 := data["dir"].(dict)

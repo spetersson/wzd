@@ -1,11 +1,13 @@
 package game
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/spetersson/wzd/backend/game_map"
 	"github.com/spetersson/wzd/backend/hub"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
@@ -45,7 +47,12 @@ func (game *Game) Run() {
 
 		case client := <-game.server.Unregister():
 			if player, ok := game.players[client]; ok {
-				log.Printf("Player %s left", player.Username)
+				serverMsg := fmt.Sprintf("Player %s has left", player.Username)
+				game.server.SendAll(bson.M{
+					"type":    "message",
+					"message": serverMsg,
+				})
+				log.Print(serverMsg)
 			}
 			delete(game.players, client)
 		}

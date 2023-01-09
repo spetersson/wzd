@@ -18,7 +18,7 @@ export interface GetPacketUpdate extends PacketBase<'update'> {
     buildings: Building[]
 }
 export interface GetPacketMessage extends PacketBase<'message'> {
-    username: string
+    username?: string
     message: string
 }
 export interface GetPacketPing extends PacketBase<'pong'> {

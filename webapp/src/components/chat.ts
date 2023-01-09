@@ -68,15 +68,23 @@ export class Chat extends Receiver {
         }
     }
 
-    addMessage(from: string, text: string) {
+    addMessage(text: string, from?: string) {
         const div = document.createElement('div')
-        const spanUsername = document.createElement('span')
-        spanUsername.textContent = from
-        spanUsername.className = 'chat-username'
+        const spanTime = document.createElement('span')
+        const now = new Date()
+        spanTime.textContent = `${now.getHours()}:${now.getMinutes()}`
+        spanTime.className = 'chat-time'
+        div.appendChild(spanTime)
+        if (from) {
+            const spanUsername = document.createElement('span')
+            spanUsername.textContent = from
+            spanUsername.className = 'chat-username'
+            div.appendChild(spanUsername)
+        }
         const spanContent = document.createElement('span')
         spanContent.textContent = text
         spanContent.className = 'chat-content'
-        div.append(spanUsername, spanContent)
+        div.appendChild(spanContent)
         this.messagesElem.appendChild(div)
 
         this.messages.push({
@@ -87,7 +95,7 @@ export class Chat extends Receiver {
     receive(pkt: GetPacket) {
         switch (pkt.type) {
             case 'message':
-                this.addMessage(pkt.username, pkt.message)
+                this.addMessage(pkt.message, pkt.username)
                 break
 
             default:
