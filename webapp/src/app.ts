@@ -55,15 +55,14 @@ export class WZDApp {
 
         this.inGame = true
 
-        this.inputs.listenUp('Enter', this.onEnterKey.bind(this))
-        this.inputs.listenUp('Escape', this.onEscKey.bind(this))
+        this.inputs.onKeyUp('Enter', this.onEnterKey.bind(this))
+        this.inputs.onKeyUp('Escape', this.onEscKey.bind(this))
 
         requestAnimationFrame(this.loop.bind(this))
     }
 
     async loop() {
-        this.game.update()
-        this.game.draw()
+        this.game.frame()
         requestAnimationFrame(this.loop.bind(this))
     }
 

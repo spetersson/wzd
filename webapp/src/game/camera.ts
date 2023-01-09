@@ -5,6 +5,7 @@ export class Camera {
     private worldSize: Vec
     private screenSize: Vec
     private scale: number
+    private scaleInv: number
     private worldBB: BB
     private worldIdxBB: BB
     constructor(pos: Vec, preferedWorldSize: Vec, screenW: number, screenH: number) {
@@ -19,6 +20,7 @@ export class Camera {
         const wScale = this.screenSize.x / this.worldSize.x
         const hScale = this.screenSize.y / this.worldSize.y
         this.scale = Math.round((wScale + hScale) * 0.5)
+        this.scaleInv = 1 / this.scale
 
         this.worldSize.x = this.screenSize.x / this.scale
         this.worldSize.y = this.screenSize.y / this.scale
@@ -61,6 +63,19 @@ export class Camera {
         return {
             x: (x - this.worldBB.left) * this.scale,
             y: (y - this.worldBB.top) * this.scale,
+        }
+    }
+
+    vecScreenToWorld(p: Vec): Vec {
+        return {
+            x: p.x * this.scaleInv + this.worldBB.left,
+            y: p.y * this.scaleInv + this.worldBB.top,
+        }
+    }
+    xyScreenToWorld(x: number, y: number): Vec {
+        return {
+            x: x * this.scaleInv + this.worldBB.left,
+            y: y * this.scaleInv + this.worldBB.top,
         }
     }
 }

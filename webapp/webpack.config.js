@@ -35,5 +35,11 @@ module.exports = {
         filename: 'bundle.js',
         path: dist,
     },
-    plugins: [new MiniCssExtractPlugin(), new HtmlWebpackPlugin({ template: path.join(src, 'index.html') })],
+    plugins: [
+        new MiniCssExtractPlugin(),
+        new HtmlWebpackPlugin({
+            template: path.join(src, 'index.html'),
+            favicon: path.join(src, 'assets/favicon.ico'),
+        }),
+    ],
 }

@@ -1,51 +1,6 @@
-@font-face {
-    font-family: 'Roboto-Light';
-    src: url(assets/fonts/roboto/Roboto-Light.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto-Light-Italic';
-    src: url(assets/fonts/roboto/Roboto-LightItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url(assets/fonts/roboto/Roboto-Regular.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto-Medium';
-    src: url(assets/fonts/roboto/Roboto-Medium.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto-Medium-Italic';
-    src: url(assets/fonts/roboto/Roboto-MediumItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto-Italic';
-    src: url(assets/fonts/roboto/Roboto-Italic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto-Bold';
-    src: url(assets/fonts/roboto/Roboto-Bold.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto-Bold-Italic';
-    src: url(assets/fonts/roboto/Roboto-BoldItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Roboto-Black';
-    src: url(assets/fonts/roboto/Roboto-Black.ttf) format('truetype');
-}
-
-*,
-html {
-    box-sizing: border-box;
-    font-family: 'Roboto', 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-}
-
-*,
-*:before,
-*:after {
-    box-sizing: inherit;
-}
+@use 'styles/global';
+@use 'styles/fonts';
+@use 'styles/cursor' as cursor;
 
 html,
 body,
@@ -56,6 +11,9 @@ body,
     margin: 0;
     padding: 0;
     overflow: hidden;
+}
+body {
+    @include cursor.reg;
 }
 
 #join-container {
@@ -79,6 +37,14 @@ body,
 #join-form {
     display: flex;
     flex-direction: column;
+
+    & > input {
+        @include cursor.text;
+        font-size: large;
+    }
+    & > .submit {
+        @include cursor.pointer;
+    }
 }
 
 #error-text {
@@ -191,11 +157,11 @@ body,
 }
 
 #grid-container > * {
+    @include cursor.pointer;
     display: flex;
     border: 1px solid black;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
     user-select: none;
 }
 

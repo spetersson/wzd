@@ -4,6 +4,7 @@ import { Building, isWholeTile, MapData } from '@/utils/map'
 import { Vec } from '@/utils/math'
 
 import { Camera } from './camera'
+import { InHands } from './types'
 
 export function drawLoading(gc: CanvasRenderingContext2D) {
     gc.fillStyle = '#AAA'
@@ -53,11 +54,41 @@ export function drawMap(gc: CanvasRenderingContext2D, cam: Camera, map: MapData)
     }
 }
 
-export function drawBuilding(gc: CanvasRenderingContext2D, cam: Camera, building: Building) {
+export function drawInHands(gc: CanvasRenderingContext2D, cam: Camera, inHands: InHands, mPos: Vec) {
+    if (!inHands.buildingType) {
+        return
+    }
+
+    // Draw marker square
+    const ix = Math.floor(mPos.x)
+    const iy = Math.floor(mPos.y)
+    const { x, y } = cam.xyWorldToScreen(ix, iy)
+    const tileW = cam.getScale()
+    if (inHands.valid) {
+        gc.fillStyle = '#0F0'
+    } else {
+        gc.fillStyle = '#F00'
+    }
+    gc.globalAlpha = 0.4
+    gc.fillRect(x, y, tileW, tileW)
+    gc.globalAlpha = 1
+
+    // Draw building
+    const building: Building = {
+        id: 0,
+        ix,
+        iy,
+        typeId: inHands.buildingType.typeId,
+    }
+    drawBuilding(gc, cam, building, 0.5)
+}
+
+export function drawBuilding(gc: CanvasRenderingContext2D, cam: Camera, building: Building, alpha?: number) {
     const { x, y } = cam.xyWorldToScreen(building.ix, building.iy)
     const tileW = cam.getScale()
     const type = Consts.BUILDING_TYPES[building.typeId]
     const offset = (1 - type.size) * 0.5
+    gc.globalAlpha = typeof alpha === 'number' ? alpha : 1
     if (building.typeId === 1) {
         gc.fillStyle = '#666'
     } else {
@@ -70,6 +101,7 @@ export function drawBuilding(gc: CanvasRenderingContext2D, cam: Camera, building
         gc.fillStyle = '#522'
     }
     gc.fillRect(x + tileW * 0.2, y + tileW * 0.2, tileW * 0.6, tileW * 0.6)
+    gc.globalAlpha = 1
 }
 
 export function drawPlayer(gc: CanvasRenderingContext2D, cam: Camera, p: Player) {
