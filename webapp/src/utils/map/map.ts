@@ -94,12 +94,12 @@ export class MapData {
             const row = new Array<Tile>(width)
             for (let x = 0; x < width; x++) {
                 if (landMap[y][x]) {
-                    row[x] = { walkable: true, building: null, tileSprite: tileSprites[SpriteType.TILE_LAND] }
+                    row[x] = { walkable: true, building: null, tileSprite: tileSprites['TILE_LAND'] }
                 } else {
-                    let tile1 = SpriteType.SUBTILE_WATER
-                    let tile2 = SpriteType.SUBTILE_WATER
-                    let tile3 = SpriteType.SUBTILE_WATER
-                    let tile4 = SpriteType.SUBTILE_WATER
+                    let tile1: SpriteType = 'SUBTILE_WATER'
+                    let tile2: SpriteType = 'SUBTILE_WATER'
+                    let tile3: SpriteType = 'SUBTILE_WATER'
+                    let tile4: SpriteType = 'SUBTILE_WATER'
 
                     const topLeft = y > 0 && x > 0 && landMap[y - 1][x - 1]
                     const topMid = y > 0 && landMap[y - 1][x]
@@ -112,62 +112,74 @@ export class MapData {
 
                     // TILE 1 (Top Left):
                     if (leftMid && topMid) {
-                        tile1 = SpriteType.SUBTILE_CORNER_FRONT_L
+                        tile1 = 'SUBTILE_CORNER_FRONT_L'
+                    } else if (topMid && !topLeft) {
+                        tile1 = 'SUBTILE_FRONT_POINT_EASE_R'
                     } else if (topMid) {
-                        tile1 = SpriteType.SUBTILE_FRONT
-                    } else if (leftMid && topLeft) {
-                        tile1 = SpriteType.SUBTILE_SIDE_L
+                        tile1 = 'SUBTILE_FRONT'
+                    } else if (leftMid && !topLeft) {
+                        tile1 = 'SUBTILE_SIDE_BACK_POINT_EASE_L'
                     } else if (leftMid) {
-                        tile1 = SpriteType.SUBTILE_SIDE_BACK_L
+                        tile1 = 'SUBTILE_SIDE_L'
                     } else if (topLeft) {
-                        tile1 = SpriteType.SUBTILE_POINT_FRONT_L
+                        tile1 = 'SUBTILE_POINT_FRONT_L'
                     }
 
                     // TILE 2 (Top Right):
                     if (rightMid && topMid) {
-                        tile2 = SpriteType.SUBTILE_CORNER_FRONT_R
+                        tile2 = 'SUBTILE_CORNER_FRONT_R'
+                    } else if (topMid && !topRight) {
+                        tile2 = 'SUBTILE_FRONT_POINT_EASE_L'
                     } else if (topMid) {
-                        tile2 = SpriteType.SUBTILE_FRONT
+                        tile2 = 'SUBTILE_FRONT'
                     } else if (rightMid && topRight) {
-                        tile2 = SpriteType.SUBTILE_SIDE_R
+                        tile2 = 'SUBTILE_SIDE_R'
                     } else if (rightMid) {
-                        tile2 = SpriteType.SUBTILE_SIDE_BACK_R
+                        tile2 = 'SUBTILE_SIDE_BACK_POINT_EASE_R'
                     } else if (topRight) {
-                        tile2 = SpriteType.SUBTILE_POINT_FRONT_R
+                        tile2 = 'SUBTILE_POINT_FRONT_R'
                     }
 
                     // TILE 3 (Bot Left):
                     if (botMid && leftMid) {
-                        tile3 = SpriteType.SUBTILE_CORNER_BACK_L
+                        tile3 = 'SUBTILE_CORNER_BACK_L'
+                    } else if (botMid && !botLeft) {
+                        tile3 = 'SUBTILE_BACK_POINT_EASE_R'
                     } else if (botMid) {
-                        tile3 = SpriteType.SUBTILE_BACK
+                        tile3 = 'SUBTILE_BACK'
+                    } else if (leftMid && !botLeft) {
+                        tile3 = 'SUBTILE_SIDE_FRONT_POINT_EASE_L'
                     } else if (leftMid) {
-                        tile3 = SpriteType.SUBTILE_SIDE_L
+                        tile3 = 'SUBTILE_SIDE_L'
                     } else if (botLeft) {
-                        tile3 = SpriteType.SUBTILE_POINT_BACK_L
+                        tile3 = 'SUBTILE_POINT_BACK_L'
                     }
 
                     // TILE 4 (Bot Right):
                     if (botMid && rightMid) {
-                        tile4 = SpriteType.SUBTILE_CORNER_BACK_R
+                        tile4 = 'SUBTILE_CORNER_BACK_R'
+                    } else if (botMid && !botRight) {
+                        tile4 = 'SUBTILE_BACK_POINT_EASE_L'
                     } else if (botMid) {
-                        tile4 = SpriteType.SUBTILE_BACK
+                        tile4 = 'SUBTILE_BACK'
+                    } else if (rightMid && !botRight) {
+                        tile4 = 'SUBTILE_SIDE_FRONT_POINT_EASE_R'
                     } else if (rightMid) {
-                        tile4 = SpriteType.SUBTILE_SIDE_R
+                        tile4 = 'SUBTILE_SIDE_R'
                     } else if (botRight) {
-                        tile4 = SpriteType.SUBTILE_POINT_BACK_R
+                        tile4 = 'SUBTILE_POINT_BACK_R'
                     }
 
                     if (
-                        tile1 === SpriteType.SUBTILE_WATER &&
-                        tile2 === SpriteType.SUBTILE_WATER &&
-                        tile3 === SpriteType.SUBTILE_WATER &&
-                        tile4 === SpriteType.SUBTILE_WATER
+                        tile1 === 'SUBTILE_WATER' &&
+                        tile2 === 'SUBTILE_WATER' &&
+                        tile3 === 'SUBTILE_WATER' &&
+                        tile4 === 'SUBTILE_WATER'
                     ) {
                         row[x] = {
                             walkable: false,
                             building: null,
-                            tileSprite: tileSprites[SpriteType.TILE_WATER],
+                            tileSprite: tileSprites['TILE_WATER'],
                         }
                     } else {
                         row[x] = {
