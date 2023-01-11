@@ -1,4 +1,4 @@
-import { Store } from '@/utils'
+import { Settings } from '@/utils'
 
 export interface LoginResult {
     username: string
@@ -19,7 +19,7 @@ export class Login {
         this.nameField = document.getElementById('name-field') as HTMLInputElement
         this.errorText = document.getElementById('error-text') as HTMLInputElement
 
-        this.nameField.value = Store.get().defaultUsername
+        this.nameField.value = Settings.get().defaultUsername
     }
 
     focus() {
@@ -47,7 +47,7 @@ export class Login {
                     return
                 }
 
-                Store.update({ defaultUsername: res.username })
+                Settings.update({ defaultUsername: res.username })
                 resolve(res)
             }
             this.joinForm.addEventListener('submit', onSubmit, { once: true, capture: true })
