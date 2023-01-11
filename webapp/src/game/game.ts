@@ -85,6 +85,7 @@ export default class Game extends Receiver {
         window.onresize = this.resize.bind(this)
         this.inputs.onKeyDown('Tab', this.onTab.bind(this))
         this.inputs.onKeyDown('KeyE', this.onKeyE.bind(this))
+        this.inputs.onKeyDown('KeyQ', this.onKeyQ.bind(this))
         this.inputs.onMouse('leftclick', this.onLeftClick.bind(this))
         this.inputs.onMouse('rightclick', this.onRightClick.bind(this))
     }
@@ -165,6 +166,30 @@ export default class Game extends Receiver {
             this.inMenu = false
         }
     }
+    onKeyQ(_key: KeyCodes, _ev: Event) {
+        if (!this.focused || this.inMenu) {
+            return
+        }
+
+        const mScreenPos = this.inputs.getMouseScreenPos()
+        const mPos = this.cam.vecScreenToWorld(mScreenPos)
+        const ix = Math.floor(mPos.x)
+        const iy = Math.floor(mPos.y)
+
+        if (!this.map.isInside(ix, iy)) {
+            return
+        }
+
+        const building = this.map.tiles[iy][ix].building
+        if (!building) {
+            this.inHands.buildingType = null
+            this.inHands.valid = null
+            return
+        }
+
+        this.inHands.buildingType = Consts.BUILDING_TYPES[building.typeId]
+        this.inHands.valid = false
+    }
     onLeftClick(ev: MouseEvent) {
         if (!this.focused || this.inMenu) {
             return
@@ -183,7 +208,7 @@ export default class Game extends Receiver {
 
             console.log(`Placing ${type.name} of type ${type.typeId} at (${ix},${iy})`)
             this.conn.send({ type: 'build', idx: toInt32(Vec(ix, iy)), typeId: toInt32(type.typeId) })
-            this.sound.play(Sounds.PLACE_BUILDING)
+            this.sound.play(Sounds.PLACE_BUILDING, { restart: true })
         }
     }
     onRightClick(ev: MouseEvent) {
