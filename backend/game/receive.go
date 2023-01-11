@@ -30,6 +30,11 @@ func (game *Game) receive(client *hub.Client, data dict) {
 			log.Printf("Failed to parse join packet %v", data)
 			return
 		}
+
+		if client := game.findUsername(username); client != nil {
+			delete(game.players, client)
+		}
+
 		game.players[client] = &Player{
 			Username:  username,
 			Pos:       vec.NewVec(x, y),

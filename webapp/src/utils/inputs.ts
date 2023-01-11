@@ -1,5 +1,6 @@
-import { KeyCodes } from './keys'
-import { Vec } from './math'
+import { Vec } from '@/utils/math'
+
+import { KeyCodes } from '.'
 
 export type KeyboardCallback = (key: KeyCodes, ev: Event) => void
 export type MouseCallback = (ev: MouseEvent) => void
@@ -11,7 +12,7 @@ enum ButtonCodes {
     RIGHT_BTN = 2,
 }
 
-export default class Inputs {
+export class Inputs {
     private keysDown: Partial<Record<KeyCodes, boolean>>
     private listenersKeyDown: Partial<Record<KeyCodes, KeyboardCallback[]>>
     private listenersKeyUp: Partial<Record<KeyCodes, KeyboardCallback[]>>

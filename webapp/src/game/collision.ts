@@ -1,6 +1,6 @@
 import { Consts } from '@/constants'
-import { Player } from '@/server/packet-get'
-import { MapData } from '@/utils/map'
+import { MapData } from '@/map'
+import { Player } from '@/server'
 import { add, BB, dot, iadd, inormalize, isZero, mag, mul, normalized, sub, Vec } from '@/utils/math'
 
 export function collidePlayerTiles(p: Player, map: MapData) {

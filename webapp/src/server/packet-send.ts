@@ -1,5 +1,6 @@
 import * as bson from 'bson'
-import { VecDouble, VecInt32 } from '@/server/types'
+
+import { VecDouble, VecInt32 } from '@/server'
 
 export interface SendPacketJoin {
     type: 'join'

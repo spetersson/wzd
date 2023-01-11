@@ -1,4 +1,4 @@
-import { BuildingType } from '@/utils/map'
+import { BuildingType } from '@/map'
 import { Vec } from '@/utils/math'
 
 const BUILDING_TYPES: Record<number, BuildingType> = {
@@ -17,5 +17,6 @@ export const Consts = {
     NUM_PINGS_AVG: 10,
     PREFERED_VIEW_SIZE: Vec(50, 28),
     BUILD_PLACE_MAX_DIST: 5,
+    STEP_DIST: 2,
     BUILDING_TYPES,
 } as const

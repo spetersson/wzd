@@ -1,4 +1,4 @@
-import { GetPacket } from '@/server/packet-get'
+import { GetPacket } from '@/server'
 
 export abstract class Receiver {
     constructor(private acceptPktTypes: GetPacket['type'][] = []) {}

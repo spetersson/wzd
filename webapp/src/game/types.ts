@@ -1,4 +1,4 @@
-import { BuildingType } from '@/utils/map'
+import { BuildingType } from '@/map'
 
 export interface InHands {
     buildingType?: BuildingType

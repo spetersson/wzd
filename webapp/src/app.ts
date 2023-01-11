@@ -1,9 +1,8 @@
 import { Chat } from '@/components/chat'
-import Game from '@/game'
 import { Login } from '@/components/login'
-import Connection from '@/server/connection'
-import { GetPacket } from '@/server/packet-get'
-import Inputs from '@/utils/inputs'
+import Game from '@/game'
+import { Connection, GetPacket } from '@/server'
+import { Inputs } from '@/utils'
 
 export class WZDApp {
     inputs: Inputs

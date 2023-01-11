@@ -1,8 +1,9 @@
 import * as bson from 'bson'
 
-import { Building } from '@/utils/map'
+import { Building } from '@/map'
 import { Vec } from '@/utils/math'
-import { PacketBase } from './packet'
+
+import { PacketBase } from '.'
 
 export interface Player {
     username: string
