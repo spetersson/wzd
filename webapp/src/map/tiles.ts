@@ -81,3 +81,15 @@ export async function getAllSprites(): Promise<Record<SpriteType, Sprite>> {
     }
     return sprites as Record<SpriteType, Sprite>
 }
+
+export async function getAllSpritesMipmap(): Promise<Record<SpriteType, Sprite>> {
+    const img = await loadImg(cliffsTileMapUrl)
+    const sprites: Partial<Record<SpriteType, Sprite>> = {}
+    for (const key in TILE_MAP_COORDS) {
+        const tileType = key as SpriteType
+        const c = TILE_MAP_COORDS[tileType]
+        const flipX = key.endsWith('_L')
+        sprites[tileType] = await createSprite(img, c[0], c[1], c[2], c[3], flipX)
+    }
+    return sprites as Record<SpriteType, Sprite>
+}

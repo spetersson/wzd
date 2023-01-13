@@ -17,6 +17,7 @@ import {
     drawPlayer,
     drawUser,
     InHands,
+    Minimap,
     movePlayer,
     MuteMenu,
     Sound,
@@ -28,6 +29,8 @@ export default class Game extends Receiver {
     players: Player[]
     map: MapData
     cam: Camera
+    minimap: Minimap
+
     buildMenu: BuildMenu
     muteMeny: MuteMenu
     sound: Sound
@@ -61,6 +64,8 @@ export default class Game extends Receiver {
         this.players = []
         this.map = null
         this.cam = new Camera(Vec(this.user.pos), Consts.PREFERED_VIEW_SIZE, this.canvas.width, this.canvas.height)
+
+        this.minimap = new Minimap(this.user.pos, this.canvas.width / 5, this.canvas.height / 5)
         this.buildMenu = new BuildMenu()
         this.buildMenu.close()
         this.sound = new Sound()
@@ -241,6 +246,9 @@ export default class Game extends Receiver {
 
         this.cam.update(this.user.pos, Consts.PREFERED_VIEW_SIZE, this.canvas.width, this.canvas.height)
 
+        const minimapSize = this.canvas.width / 10 + this.canvas.height / 10
+        this.minimap.update(this.user.pos, minimapSize, minimapSize)
+
         this.updateInHands()
         this.latestServerUpdate = now
     }
@@ -266,6 +274,8 @@ export default class Game extends Receiver {
         drawUser(gc, this.cam, this.user)
 
         drawInHands(gc, this.cam, this.inHands, mPos)
+
+        this.minimap.draw(this.map)
 
         if (this.debug) {
             const connStats = this.conn.getStats()

@@ -8,6 +8,7 @@ export * from './receive'
 export * from './types'
 export * from './sound'
 export * from './mute'
+export * from './minimap'
 
 import Game from './game'
 export default Game

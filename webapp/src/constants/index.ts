@@ -16,6 +16,7 @@ export const Consts = {
     PING_INTERVAL: 500,
     NUM_PINGS_AVG: 10,
     PREFERED_VIEW_SIZE: Vec(50, 28),
+    MINIMAP_VIEW_SIZE: Vec(75, 75),
     BUILD_PLACE_MAX_DIST: 5,
     STEP_DIST: 2,
     BUILDING_TYPES,
