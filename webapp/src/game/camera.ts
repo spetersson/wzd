@@ -19,7 +19,7 @@ export class Camera {
 
         const wScale = this.screenSize.x / this.worldSize.x
         const hScale = this.screenSize.y / this.worldSize.y
-        this.scale = Math.round((wScale + hScale) * 0.5)
+        this.scale = Math.round((wScale + hScale) * 0.5 * window.devicePixelRatio)
         this.scaleInv = 1 / this.scale
 
         this.worldSize.x = this.screenSize.x / this.scale

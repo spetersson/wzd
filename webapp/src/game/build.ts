@@ -1,5 +1,5 @@
 import { Consts } from '@/constants'
-import { BuildingType } from '@/utils/map'
+import { BuildingType } from '@/map'
 
 export type SelectBuildingCallback = (buildingType: BuildingType) => void
 

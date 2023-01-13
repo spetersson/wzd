@@ -1,5 +1,4 @@
-import Connection from '@/server/connection'
-import { GetPacket } from '@/server/packet-get'
+import { Connection, GetPacket } from '@/server'
 
 import { Receiver } from '.'
 

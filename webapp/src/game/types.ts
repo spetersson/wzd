@@ -1,4 +1,4 @@
-import { BuildingType } from '@/utils/map'
+import { BuildingType } from '@/map'
 import { Vec } from '@/utils/math'
 
 export interface Enemy {

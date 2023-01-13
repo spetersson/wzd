@@ -1,7 +1,6 @@
 import * as bson from 'bson'
 
-import { GetPacket } from '@/server/packet-get'
-import { SendPacket } from '@/server/packet-send'
+import { GetPacket, SendPacket } from '.'
 
 interface ConnectionStats {
     sumReceive: number
@@ -12,7 +11,7 @@ interface ConnectionStats {
     sendPerSecond: number
 }
 
-export default class Connection {
+export class Connection {
     private conn: WebSocket
     private stats: ConnectionStats
 

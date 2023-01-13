@@ -1,5 +1,5 @@
 import { Consts } from '@/constants'
-import { Player } from '@/server/packet-get'
+import { Player } from '@/server'
 import { iadd, imul, isZero, mul } from '@/utils/math'
 
 export function movePlayer(p: Player, dt: number) {

@@ -67,3 +67,13 @@ func (game *Game) nextId() int {
 	game.idCounter++
 	return id
 }
+
+func (game *Game) findUsername(username string) *hub.Client {
+	for client, player := range game.players {
+		if player.Username == username {
+			return client
+		}
+	}
+
+	return nil
+}

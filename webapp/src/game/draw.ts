@@ -1,10 +1,9 @@
 import { Consts } from '@/constants'
-import { Player } from '@/server/packet-get'
-import { Building, isWholeTile, MapData } from '@/utils/map'
+import { Building, isWholeTile, MapData } from '@/map'
+import { Player } from '@/server'
 import { Vec } from '@/utils/math'
 
-import { Camera } from './camera'
-import { Enemy, InHands } from './types'
+import { Camera, InHands, Enemy } from '.'
 
 export function drawLoading(gc: CanvasRenderingContext2D) {
     gc.fillStyle = '#AAA'

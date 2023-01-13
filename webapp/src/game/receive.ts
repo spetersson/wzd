@@ -1,3 +1,3 @@
-import Game from './game'
+import Game from '@/game'
 
 export function receive(this: Game) {}
