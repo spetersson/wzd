@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            *,
+            html {
+                box-sizing: border-box;
+            }
+
+            *,
+            *:before,
+            *:after {
+                box-sizing: inherit;
+            }
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            body {
+                display: flex;
+            }
+
+            #tools {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: stretch;
+                background-color: #444;
+                padding: 0.6rem 2rem 2rem 2rem;
+            }
+            #tools-grid {
+                display: grid;
+                grid-template-columns: auto;
+                row-gap: 5px;
+            }
+
+            label {
+                padding-top: 1rem;
+                color: rgb(239, 239, 237);
+            }
+            input {
+                height: 32px;
+                color: rgb(239, 239, 237);
+                border: 1px solid #222;
+                background-color: transparent;
+            }
+            input[type='number'] {
+                -moz-appearance: textfield;
+                text-align: center;
+            }
+            input[type='number']::-webkit-inner-spin-button {
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                margin: 0;
+            }
+            input[type='file']::file-selector-button {
+                background-color: #222;
+                color: rgb(239, 239, 237);
+                border: 0;
+                padding: 7px;
+                cursor: pointer;
+            }
+            input[type='range'] {
+                -webkit-appearance: none;
+                outline: none;
+                appearance: none;
+                width: 100%;
+            }
+            input[type='range']::-webkit-slider-thumb,
+            input[type='range']::-moz-range-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 32px;
+                height: 32px;
+                background-color: #222;
+                border: 0;
+                border-radius: 0;
+                cursor: pointer;
+            }
+
+            /*
+            input:focus {
+                outline: none;
+                border: 1px solid #306ec6;
+            }
+            .slider {
+                background: #306ec6; 
+                height: 6px;
+                background: #306ec6;
+                border: 0;
+            }
+            */
+            #actions {
+                display: grid;
+                grid-template-columns: auto auto;
+                grid-template-rows: auto auto;
+                column-gap: 0.3rem;
+                row-gap: 0.3rem;
+            }
+            #actions > button {
+                height: 32px;
+                background-color: #222;
+                color: rgb(239, 239, 237);
+                border: 0;
+                padding: 0 1rem;
+                cursor: pointer;
+            }
+            #btn-download {
+                grid-column: 1 / span 2;
+            }
+
+            button {
+                padding: 0.4rem 0.7rem;
+            }
+
+            #view {
+                flex-grow: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+                background-color: #888;
+            }
+            #canvas {
+                width: auto;
+                image-rendering: pixelated;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="tools">
+            <div id="tools-grid">
+                <label>Land image</label>
+                <input id="in-land-img" type="file" accept="image/png, image/jpeg" />
+                <label>Height image</label>
+                <input id="in-height-img" type="file" accept="image/png, image/jpeg" />
+                <label>Height threshold</label>
+                <input id="in-height-thr" type="range" min="0" max="255" value="128" />
+                <label>Width</label>
+                <input id="in-width" type="number" min="0" step="100" />
+                <label>Height</label>
+                <input id="in-height" type="number" min="0" step="100" />
+                <label>Smoothness</label>
+                <input id="in-smooth" type="number" min="0" max="6" step="1" />
+            </div>
+            <div id="actions">
+                <button id="btn-color">Toggle color</button>
+                <button id="btn-refresh">Refresh</button>
+                <button id="btn-download">Download</button>
+            </div>
+        </div>
+        <div id="view">
+            <canvas id="canvas"></canvas>
+        </div>
+    </body>
+</html>
