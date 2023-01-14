@@ -1,8 +1,6 @@
 package game
 
 import (
-	"log"
-
 	m "github.com/spetersson/wzd/backend/math"
 	phy "github.com/spetersson/wzd/backend/physics"
 )
@@ -27,8 +25,8 @@ func (game *Game) collidePlayerPlayer(a, b phy.Body) {
 	}
 
 	// Move players
-	a.GetPos().Add(collision.Norm.Mul(collision.Overlap * weightA))
-	b.GetPos().Add(collision.Norm.Mul(-collision.Overlap * weightB))
+	a.Move(collision.Norm.Mul(collision.Overlap * weightA))
+	b.Move(collision.Norm.Mul(-collision.Overlap * weightB))
 }
 
 func (game *Game) collideBodyTiles(body phy.Body) {
@@ -69,8 +67,7 @@ func (game *Game) collideBodyTiles(body phy.Body) {
 
 			collision := body.Collide(&bodyBB)
 			if collision != nil {
-				log.Print("Collide!")
-				body.GetPos().Add(collision.Norm.Mul(collision.Overlap))
+				body.Move(collision.Norm.Mul(collision.Overlap))
 			}
 		}
 	}
