@@ -111,7 +111,7 @@ export default class Game extends Receiver {
     }
 
     async join() {
-        this.conn.send({ type: 'join', username: this.user.username, pos: toDouble(this.user.pos) })
+        this.conn.send({ type: 'join', username: this.user.username })
     }
 
     async receive(pkt: GetPacket) {

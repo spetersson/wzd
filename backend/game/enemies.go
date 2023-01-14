@@ -1,16 +1,18 @@
 package game
 
 import (
+	"log"
 	"math"
 	"math/rand"
 
 	"github.com/spetersson/wzd/backend/game_map"
+	m "github.com/spetersson/wzd/backend/math"
+	phy "github.com/spetersson/wzd/backend/physics"
 )
 
 type Enemy struct {
-	Id int
-	X  float64
-	Y  float64
+	Id   int
+	body phy.BodyCircle
 }
 
 func (game *Game) spawnEnemies(dt float64) {
@@ -59,9 +61,15 @@ func (game *Game) spawnEnemies(dt float64) {
 		}
 		enemy := &Enemy{
 			Id: game.nextId(),
-			X:  float64(ix) + 0.5,
-			Y:  float64(iy) + 0.5,
+			body: phy.NewBodyCircle(
+				m.NewCircle(
+					m.NewVec(float64(ix)+0.5, float64(iy)+0.5),
+					PLAYER_RAD,
+				),
+				m.NewVec(0, 0),
+			),
 		}
 		game.enemies[enemy.Id] = enemy
+		log.Print("Enemy spawned")
 	}
 }

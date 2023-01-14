@@ -8,10 +8,13 @@ import (
 	"os"
 )
 
+type RGBA = color.RGBA
+
 var (
-	TILE_WATER      = color.RGBA{0, 0, 0, 255}
-	TILE_LAND       = color.RGBA{255, 255, 255, 255}
-	TILE_ENEMY_BASE = color.RGBA{255, 0, 0, 255}
+	TILE_WATER      = RGBA{0, 0, 0, 255}
+	TILE_ROCK       = RGBA{128, 128, 128, 255}
+	TILE_LAND       = RGBA{255, 255, 255, 255}
+	TILE_ENEMY_BASE = RGBA{255, 0, 0, 255}
 )
 
 type GameMap struct {
@@ -85,9 +88,13 @@ func GetMap() GameMap {
 	for iy := 0; iy < height; iy++ {
 		gm.tiles[iy] = make([]Tile, width)
 		for ix := 0; ix < width; ix++ {
-			col, ok := img.At(ix, iy).(color.RGBA)
+			col, ok := img.At(ix, iy).(RGBA)
 			if !ok {
-				log.Fatalf("Pixel at (%d, %d) could not be converted to RGBA", ix, iy)
+				colNRGBA, ok := img.At(ix, iy).(color.NRGBA)
+				if !ok {
+					log.Fatalf("Pixel at (%d, %d) could not be converted to RGBA", ix, iy)
+				}
+				col = RGBA(colNRGBA)
 			}
 			switch col {
 			case TILE_WATER:
@@ -103,6 +110,8 @@ func GetMap() GameMap {
 				gm.tiles[iy][ix] = Tile{true, building}
 				gm.buildings[id] = building
 			case TILE_LAND:
+				gm.tiles[iy][ix] = Tile{true, nil}
+			case TILE_ROCK:
 				gm.tiles[iy][ix] = Tile{true, nil}
 			default:
 				log.Fatal("Unknown tile color %w", col)

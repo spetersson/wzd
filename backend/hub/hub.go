@@ -23,15 +23,19 @@ type Hub struct {
 	register   chan *Client
 	unregister chan *Client
 	receiver   chan *Packet
+	exit       chan bool
+	exitReturn chan bool
 }
 
 func NewHub() *Hub {
 	return &Hub{
+		clients:    make(map[*Client]bool),
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
 		receiver:   make(chan *Packet),
+		exit:       make(chan bool),
+		exitReturn: make(chan bool),
 	}
 }
 
@@ -55,6 +59,9 @@ func (hub *Hub) Run() {
 						delete(hub.clients, client)
 					}
 				}
+			case <-hub.exit:
+				log.Println("Hub exiting")
+				return
 			}
 		}
 	}()
@@ -67,6 +74,12 @@ func (hub *Hub) Run() {
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+}
+
+func (hub *Hub) Stop() chan bool {
+	hub.exitReturn = make(chan bool)
+	hub.exit <- true
+	return hub.exitReturn
 }
 
 func (hub *Hub) Unregister() chan *Client {

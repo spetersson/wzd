@@ -14,11 +14,11 @@ export class Camera {
 
     update(pos: Vec, preferedWorldSize: Vec, screenW: number, screenH: number) {
         this.pos = Vec(pos)
-        this.worldSize = Vec(preferedWorldSize)
+        this.worldSize = Vec()
         this.screenSize = Vec(screenW, screenH)
 
-        const wScale = this.screenSize.x / this.worldSize.x
-        const hScale = this.screenSize.y / this.worldSize.y
+        const wScale = this.screenSize.x / preferedWorldSize.x
+        const hScale = this.screenSize.y / preferedWorldSize.y
         this.scale = Math.round((wScale + hScale) * 0.5 * window.devicePixelRatio)
         this.scaleInv = 1 / this.scale
 

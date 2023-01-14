@@ -1,96 +1,78 @@
 package game
 
 import (
-	"math"
+	"log"
 
 	m "github.com/spetersson/wzd/backend/math"
+	phy "github.com/spetersson/wzd/backend/physics"
 )
 
-type Body interface {
-	Pos() m.Vec
-	Vel() m.Vec
-	BB() m.BB
-}
-
-func sign(num float64) float64 {
-	if num > 0 {
-		return 1
-	} else {
-		return -1
-	}
-}
-
-func collidePlayerBB(player *Player, bb m.BB) {
-	halfW := (bb.Right - bb.Left) * 0.5
-	halfH := (bb.Bottom - bb.Top) * 0.5
-	bbMid := m.NewVec(bb.Left+halfW, bb.Top+halfH)
-	delta := player.Pos.Sub(bbMid)
-	// Line to collide with
-	var linePos m.Vec
-	var lineNorm m.Vec
-
-	if math.Abs(delta.X) >= halfW && math.Abs(delta.Y) > halfH {
-		// Corner collision
-		linePos = m.NewVec(
-			bbMid.X+sign(delta.X)*halfW,
-			bbMid.Y+sign(delta.Y)*halfH,
-		)
-		lineNorm = player.Pos.Sub(linePos)
-		lineNorm.INormalize()
-	} else if math.Abs(delta.X) > math.Abs(delta.Y) {
-		// Horizontal
-		linePos = m.NewVec(bbMid.X+halfW*sign(delta.X), bbMid.Y)
-		lineNorm = m.NewVec(sign(delta.X), 0)
-	} else {
-		// Vertical
-		lineNorm = m.NewVec(0, sign(delta.Y))
-		linePos = m.NewVec(bbMid.X, bbMid.Y+halfH*sign(delta.Y))
-	}
-
-	// Project player onto line normal
-	relPos := player.Pos.Sub(linePos)
-	scalar := relPos.Dot(lineNorm)
-	// scalar is the distance from the block to the player
-
-	// Check if player is inside block
-	if scalar < PLAYER_RAD {
-		// Distance needed to move out of the block
-		dist := PLAYER_RAD - scalar
-		player.Pos.IAdd(lineNorm.Mul(dist))
-	}
-}
-
-func (game *Game) collidePlayerPlayer(pA, pB *Player) {
-	delta := pB.Pos.Sub(pA.Pos)
-	overlap := 2*PLAYER_RAD - delta.Mag()
+func (game *Game) collidePlayerPlayer(a, b phy.Body) {
 
 	// Check if they are colliding
-	if overlap < 0 {
+	collision := a.Collide(b)
+	if collision == nil {
 		return
 	}
 
 	// Calculate how much to move each player, the one with higher speed moves more
-	velA := pA.Vel.Mag()
-	velB := pB.Vel.Mag()
-	var weightA float64
-	var weightB float64
-	if velA == 0 && velB == 0 {
-		weightA = 0.5
-		weightB = 0.5
-	} else {
+	velA := a.Vel().Mag()
+	velB := b.Vel().Mag()
+	weightA := 0.5
+	weightB := 0.5
+	if velA > 0 || velB > 0 {
 		velTotInv := 1 / (velA + velB)
 		weightA = velA * velTotInv
 		weightB = velB * velTotInv
 	}
 
 	// Move players
-	if delta.IsZero() {
-		// In case players are exactly on top of each other
-		pA.Pos.Y -= PLAYER_RAD * 0.5
-		pB.Pos.Y += PLAYER_RAD * 0.5
-	} else {
-		deltaNorm := delta.Normalized()
-		pA.Pos.IAdd(deltaNorm.Mul(-overlap * weightA))
-		pB.Pos.IAdd(deltaNorm.Mul(overlap * weightB))
+	a.GetPos().Add(collision.Norm.Mul(collision.Overlap * weightA))
+	b.GetPos().Add(collision.Norm.Mul(-collision.Overlap * weightB))
+}
+
+func (game *Game) collideBodyTiles(body phy.Body) {
+
+	// Get index range of body bounding box
+	minIX, maxIX, minIY, maxIY := body.GetBB().GetIdx()
+
+	// Check all blocks in index range
+	bodyBB := phy.NewBodyBB(m.BB{}, m.Vec{})
+	for ix := minIX; ix <= maxIX; ix++ {
+		for iy := minIY; iy <= maxIY; iy++ {
+			// Check if block is land
+			if !game.gameMap.IsInside(ix, iy) {
+				continue
+			}
+
+			tile := game.gameMap.At(ix, iy)
+			if !tile.Walkable() {
+				// Collide with entire tile
+				bodyBB.SetBB(m.BB{
+					Left:   float64(ix),
+					Right:  float64(ix + 1),
+					Top:    float64(iy),
+					Bottom: float64(iy + 1),
+				})
+			} else if tile.Building() != nil {
+				// Collide with building on tile
+				diff := (1 - tile.Building().Type().Size()) * 0.5
+				bodyBB.SetBB(m.BB{
+					Left:   float64(ix) + diff,
+					Right:  float64(ix) + 1 - diff,
+					Top:    float64(iy) + diff,
+					Bottom: float64(iy) + 1 - diff,
+				})
+			} else {
+				continue
+			}
+
+			collision := body.Collide(&bodyBB)
+			if collision != nil {
+				log.Print("Collide!")
+				body.GetPos().Add(collision.Norm.Mul(collision.Overlap))
+			}
+		}
 	}
+
 }

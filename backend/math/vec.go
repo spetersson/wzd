@@ -3,12 +3,29 @@ package math
 import "math"
 
 type Vec struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
+	X float64
+	Y float64
 }
 
 func NewVec(x, y float64) Vec {
 	return Vec{X: x, Y: y}
+}
+
+func (v *Vec) Set(x, y float64) {
+	v.X, v.Y = x, y
+}
+
+func (a *Vec) SetV(b Vec) {
+	a.X, a.Y = b.X, b.Y
+}
+
+func (v Vec) Get() (x, y float64) {
+	return v.X, v.Y
+}
+
+func (v Vec) Neg() Vec {
+	v.X, v.Y = -v.X, -v.Y
+	return v
 }
 
 func (v Vec) IsZero() bool {
@@ -16,24 +33,21 @@ func (v Vec) IsZero() bool {
 }
 
 func (a Vec) Add(b Vec) Vec {
-	return Vec{
-		X: a.X + b.X,
-		Y: a.Y + b.Y,
-	}
+	a.X += b.X
+	a.Y += b.Y
+	return a
 }
 
 func (a Vec) Sub(b Vec) Vec {
-	return Vec{
-		X: a.X - b.X,
-		Y: a.Y - b.Y,
-	}
+	a.X -= b.X
+	a.Y -= b.Y
+	return a
 }
 
 func (a Vec) Mul(s float64) Vec {
-	return Vec{
-		X: a.X * s,
-		Y: a.Y * s,
-	}
+	a.X *= s
+	a.Y *= s
+	return a
 }
 
 func (a Vec) Dot(b Vec) float64 {
@@ -42,24 +56,20 @@ func (a Vec) Dot(b Vec) float64 {
 
 func (a Vec) Normalized() Vec {
 	lenInv := 1.0 / math.Hypot(a.X, a.Y)
-	return Vec{
-		X: a.X * lenInv,
-		Y: a.Y * lenInv,
-	}
+	a.X *= lenInv
+	a.Y *= lenInv
+	return a
 }
 
 func (a Vec) Mag() float64 {
-	return math.Sqrt(a.X*a.X + a.Y*a.Y)
-}
-
-func (a Vec) Neg() Vec {
-	return Vec{
-		X: -a.X,
-		Y: -a.Y,
-	}
+	return math.Hypot(a.X, a.Y)
 }
 
 // In-place operations
+
+func (a *Vec) INeg() {
+	a.X, a.Y = -a.X, -a.Y
+}
 
 func (a *Vec) IAdd(b Vec) {
 	a.X += b.X

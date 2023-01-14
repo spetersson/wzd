@@ -5,7 +5,6 @@ import { VecDouble, VecInt32 } from '@/server'
 export interface SendPacketJoin {
     type: 'join'
     username: string
-    pos: VecDouble
 }
 export interface SendPacketMove {
     type: 'move'

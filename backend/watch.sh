@@ -3,4 +3,4 @@
 # Install nodemon with npm:
 # npm i -g nodemon
 
-nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run main.go
+nodemon --watch './**/*.go' --signal SIGINT --exec 'go' run main.go

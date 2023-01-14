@@ -19,15 +19,27 @@ const (
 
 type dict = map[string]any
 
+type Game struct {
+	server     *hub.Hub
+	timestamp  int64
+	gameMap    game_map.GameMap
+	players    map[*hub.Client]*Player
+	enemies    map[int]*Enemy
+	exit       chan bool
+	exitReturn chan bool
+	idCounter  int
+}
+
 func NewGame(server *hub.Hub) *Game {
 	return &Game{
-		server:    server,
-		timestamp: 0,
-		gameMap:   game_map.GetMap(),
-		players:   make(map[*hub.Client]*Player),
-		enemies:   make(map[int]*Enemy),
-		done:      make(chan bool),
-		idCounter: 0,
+		server:     server,
+		timestamp:  0,
+		gameMap:    game_map.GetMap(),
+		players:    make(map[*hub.Client]*Player),
+		enemies:    make(map[int]*Enemy),
+		exit:       make(chan bool),
+		exitReturn: make(chan bool),
+		idCounter:  0,
 	}
 }
 
@@ -58,8 +70,20 @@ func (game *Game) Run() {
 				log.Print(serverMsg)
 			}
 			delete(game.players, client)
+		case <-game.exit:
+			log.Println("Game exiting")
+			if game.exitReturn != nil {
+				game.exitReturn <- true
+			}
+			return
 		}
 	}
+}
+
+func (game *Game) Stop() chan bool {
+	game.exitReturn = make(chan bool)
+	game.exit <- true
+	return game.exitReturn
 }
 
 func (game *Game) nextId() int {

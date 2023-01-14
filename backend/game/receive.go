@@ -6,6 +6,7 @@ import (
 
 	"github.com/spetersson/wzd/backend/hub"
 	m "github.com/spetersson/wzd/backend/math"
+	phy "github.com/spetersson/wzd/backend/physics"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -18,15 +19,8 @@ func (game *Game) receive(client *hub.Client, data dict) {
 
 	switch pType {
 	case "join":
-		username, ok1 := data["username"].(string)
-		pos, ok2 := data["pos"].(dict)
-		if !ok1 || !ok2 {
-			log.Printf("Failed to parse join packet %v", data)
-			return
-		}
-		x, ok3 := pos["x"].(float64)
-		y, ok4 := pos["y"].(float64)
-		if !ok3 || !ok4 {
+		username, ok := data["username"].(string)
+		if !ok {
 			log.Printf("Failed to parse join packet %v", data)
 			return
 		}
@@ -37,10 +31,12 @@ func (game *Game) receive(client *hub.Client, data dict) {
 
 		game.players[client] = &Player{
 			Username:  username,
-			Pos:       m.NewVec(x, y),
-			Vel:       m.NewVec(0, 0),
 			Dir:       m.NewVec(0, 0),
 			Sprinting: false,
+			Body: phy.NewBodyCircle(
+				m.NewCircle(m.NewVec(645, 130), PLAYER_RAD),
+				m.NewVec(0, 0),
+			),
 		}
 		serverMsg := fmt.Sprintf("Player %s has joined", username)
 

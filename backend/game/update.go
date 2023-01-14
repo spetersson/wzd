@@ -14,12 +14,12 @@ func (game *Game) update() {
 		players = append(players, bson.M{
 			"username": player.Username,
 			"pos": bson.M{
-				"x": player.Pos.X,
-				"y": player.Pos.Y,
+				"x": player.Body.GetPos().X,
+				"y": player.Body.GetPos().Y,
 			},
 			"vel": bson.M{
-				"x": player.Vel.X,
-				"y": player.Vel.Y,
+				"x": player.Body.Vel().X,
+				"y": player.Body.Vel().Y,
 			},
 			"dir": bson.M{
 				"x": player.Dir.X,
@@ -44,8 +44,8 @@ func (game *Game) update() {
 		enemies = append(enemies, bson.M{
 			"id": enemy.Id,
 			"pos": bson.M{
-				"x": enemy.X,
-				"y": enemy.Y,
+				"x": enemy.body.GetPos().X,
+				"y": enemy.body.GetPos().X,
 			},
 		})
 	}
